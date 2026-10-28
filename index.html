@@ -1,0 +1,1083 @@
+<!doctype html><html lang="nl"><head><meta charset=utf8><meta name="robots" content="noindex, nofollow"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Examentrainer Alien</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: één kolom (max 980px). Overzicht = examenkaart + onderwerpenlijst per kerntaak; toets = vaste balk met voortgang, vraagkaart, vraagnummerraster. */
+:root {
+  --bg: #eef2ee;
+  --surface: #ffffff;
+  --sunk: #e3e9e4;
+  --ink: #15221d;
+  --muted: #56675f;
+  --line: #d3dcd5;
+  --accent: #155e4f;
+  --accent-ink: #ffffff;
+  --accent-soft: #d8eae3;
+  --good: #23743a;
+  --good-soft: #dcefe0;
+  --bad: #b42318;
+  --bad-soft: #f8e1de;
+  --flag: #a8610c;
+  --flag-soft: #f6e8d3;
+  --organ: #c9d3cc;
+  --organ-line: #8fa198;
+  --f-display: "Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1412; --surface: #16201c; --sunk: #1d2925; --ink: #e5ece8; --muted: #9db0a6; --line: #2a3a34;
+    --accent: #63c3a8; --accent-ink: #072019; --accent-soft: #1a3a31;
+    --good: #72c47f; --good-soft: #17331f; --bad: #f0786c; --bad-soft: #3a1a17; --flag: #e3a24f; --flag-soft: #3a2a14;
+    --organ: #2f3e38; --organ-line: #6f857b; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1412; --surface: #16201c; --sunk: #1d2925; --ink: #e5ece8; --muted: #9db0a6; --line: #2a3a34;
+  --accent: #63c3a8; --accent-ink: #072019; --accent-soft: #1a3a31;
+  --good: #72c47f; --good-soft: #17331f; --bad: #f0786c; --bad-soft: #3a1a17; --flag: #e3a24f; --flag-soft: #3a2a14;
+  --organ: #2f3e38; --organ-line: #6f857b; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 980px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(28px, 5vw, 40px); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 22px; font-weight: 800; }
+h3 { font-size: 17px; font-weight: 600; }
+p { margin: 0; }
+.mono { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.02em; }
+.muted { color: var(--muted); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); font-weight: 700; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.small { min-height: 34px; padding: 4px 12px; font-size: 14px; }
+.btn.ghost { background: transparent; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.stack { display: flex; flex-direction: column; gap: 16px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* Header */
+.top { display: flex; flex-direction: column; gap: 6px; margin-bottom: 28px; }
+.top .mono { color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
+.top p { max-width: 62ch; color: var(--muted); }
+
+/* Exam cards */
+.modes { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; margin-bottom: 36px; }
+@media (max-width: 720px) { .modes { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.card.exam { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.card.exam .facts dt { color: inherit; opacity: .75; }
+.card.exam .btn { background: var(--accent-ink); color: var(--accent); border-color: var(--accent-ink); }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0; }
+@media (max-width: 480px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.facts div { display: flex; flex-direction: column; }
+.facts dt { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.facts dd { margin: 0; font-family: var(--f-display); font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.side-modes { display: flex; flex-direction: column; gap: 16px; }
+
+/* Topic list */
+.section-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; margin: 34px 0 12px; }
+.kt { margin-top: 18px; }
+.kt-label { font-family: var(--f-mono); font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; padding: 0 2px 6px; border-bottom: 1px solid var(--line); }
+.topic { display: grid; grid-template-columns: 128px minmax(0, 1fr) 130px auto; gap: 12px; align-items: center; padding: 12px 2px; border-bottom: 1px solid var(--line); }
+.topic .code { font-family: var(--f-mono); font-size: 12px; color: var(--accent); }
+.topic .name { font-weight: 700; }
+.topic .meta { font-size: 13px; color: var(--muted); }
+.topic .acts { display: flex; gap: 6px; justify-content: flex-end; }
+@media (max-width: 640px) { .topic { grid-template-columns: minmax(0, 1fr) auto; } .topic .code { grid-column: 1 / -1; } .topic .best { grid-column: 1 / -1; } }
+.best { display: flex; align-items: center; gap: 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.bar { flex: 1; height: 6px; border-radius: 3px; background: var(--sunk); overflow: hidden; min-width: 40px; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+.bar.good i { background: var(--good); }
+.bar.bad i { background: var(--bad); }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--sunk); }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.ok { background: var(--accent-soft); color: var(--accent); }
+
+.history { display: flex; flex-direction: column; }
+.history .h { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; padding: 10px 2px; border-bottom: 1px solid var(--line); align-items: center; font-variant-numeric: tabular-nums; }
+.note { font-size: 14px; color: var(--muted); max-width: 70ch; margin-top: 28px; display: flex; flex-direction: column; gap: 6px; }
+
+/* Quiz */
+.qbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px; border-bottom: 1px solid var(--line); margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+.qbar .row { justify-content: space-between; }
+.progress { height: 6px; background: var(--sunk); border-radius: 3px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.timer { font-family: var(--f-mono); font-size: 15px; font-variant-numeric: tabular-nums; padding: 4px 10px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line); }
+.timer.low { color: var(--bad); border-color: var(--bad); }
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+.qmeta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tag { font-family: var(--f-mono); font-size: 11px; padding: 3px 8px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.tag.type { background: var(--sunk); color: var(--muted); }
+.qtext { font-size: 19px; font-weight: 700; max-width: 62ch; }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; text-align: left; width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--surface); }
+.opt:hover:not([disabled]) { border-color: var(--accent); }
+.opt .key { font-family: var(--f-mono); font-size: 13px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); }
+.opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+.opt.sel .key { background: var(--accent); color: var(--accent-ink); }
+.opt.right { border-color: var(--good); background: var(--good-soft); }
+.opt.right .key { background: var(--good); color: var(--surface); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.opt.wrong .key { background: var(--bad); color: var(--surface); }
+.opt[disabled] { cursor: default; }
+.order { display: flex; flex-direction: column; gap: 8px; }
+.oitem { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); }
+.oitem .n { font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.oitem .mv { display: flex; gap: 4px; }
+.oitem .mv button { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--line); background: var(--sunk); }
+.oitem.right { border-color: var(--good); background: var(--good-soft); }
+.oitem.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.numin { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.numin input { font: inherit; font-size: 20px; font-variant-numeric: tabular-nums; width: 160px; max-width: 100%; padding: 8px 12px; border-radius: 8px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); }
+.numin input:focus { border-color: var(--accent); outline: none; }
+.hotwrap { overflow-x: auto; }
+.hotwrap svg { width: 100%; max-width: 640px; height: auto; display: block; }
+.hotwrap [data-hot] { fill: var(--organ); stroke: var(--organ-line); stroke-width: 1.5; cursor: pointer; transition: fill .12s; }
+.hotwrap [data-hot]:hover { fill: var(--accent-soft); stroke: var(--accent); }
+.hotwrap [data-hot].sel { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+.hotwrap [data-hot].right { fill: var(--good-soft); stroke: var(--good); stroke-width: 3; }
+.hotwrap [data-hot].wrong { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 3; }
+.hotwrap .body { fill: var(--sunk); stroke: var(--organ-line); stroke-width: 2; }
+.hotwrap .lbl { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+.feedback { border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.feedback.good { background: var(--good-soft); }
+.feedback.bad { background: var(--bad-soft); }
+.feedback strong { font-family: var(--f-display); font-size: 17px; }
+.feedback.good strong { color: var(--good); }
+.feedback.bad strong { color: var(--bad); }
+.qnav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin-top: 18px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; margin-top: 22px; }
+.grid button { height: 38px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--f-mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.grid button.done { background: var(--accent-soft); border-color: var(--accent-soft); }
+.grid button.flag { border-color: var(--flag); background: var(--flag-soft); }
+.grid button.cur { outline: 2.5px solid var(--accent); outline-offset: 1px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.legend span::before { content: ""; display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1.5px solid var(--line); }
+.legend .l-done::before { background: var(--accent-soft); border-color: var(--accent-soft); }
+.legend .l-flag::before { background: var(--flag-soft); border-color: var(--flag); }
+.confirm { background: var(--surface); border: 1.5px solid var(--accent); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+
+/* Results */
+.score { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 24px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 24px; }
+@media (max-width: 560px) { .score { grid-template-columns: 1fr; } }
+.big { font-family: var(--f-display); font-weight: 800; font-size: 64px; line-height: 1; font-variant-numeric: tabular-nums; }
+.big small { font-size: 26px; color: var(--muted); }
+.cesuur { position: relative; height: 12px; background: var(--sunk); border-radius: 6px; margin-top: 26px; }
+.cesuur i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 6px; background: var(--accent); }
+.cesuur .mark { position: absolute; top: -22px; transform: translateX(-50%); font-family: var(--f-mono); font-size: 11px; color: var(--muted); white-space: nowrap; }
+.cesuur .mark::after { content: ""; position: absolute; left: 50%; top: 18px; width: 2px; height: 16px; background: var(--ink); opacity: .5; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); font-size: 15px; vertical-align: middle; }
+th { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 500; }
+td.code { font-family: var(--f-mono); font-size: 12px; color: var(--accent); white-space: nowrap; }
+td.barcell { width: 30%; min-width: 90px; }
+.review { display: flex; flex-direction: column; gap: 12px; }
+.ritem { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--good); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.ritem.bad { border-left-color: var(--bad); }
+.ritem .q { font-weight: 700; }
+.ritem .a { font-size: 14px; }
+.ritem .e { font-size: 14px; color: var(--muted); }
+.toggle { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; }
+.toggle button { border: 0; background: transparent; padding: 6px 14px; font-size: 14px; font-weight: 700; }
+.toggle button.on { background: var(--accent); color: var(--accent-ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+// Vragenbank deel 1. Bij meerkeuze staat het juiste antwoord altijd eerst; de volgorde wordt bij tonen gehusseld.
+const Q = [];
+function M(b, q, o, e) { Q.push({ b, t: "mc", q, o, e }); }
+function O(b, q, o, e) { Q.push({ b, t: "order", q, o, e }); }
+function N(b, q, a, tol, unit, e) { Q.push({ b, t: "num", q, a, tol, unit, e }); }
+function H(b, q, a, e) { Q.push({ b, t: "hot", q, a, e }); }
+
+/* ---------- B1-K1 1 Anatomie en fysiologie ---------- */
+M("anat", "Hoeveel halswervels heeft een paard?", ["7", "6", "18"], "Alle zoogdieren hebben 7 halswervels, ook het paard en de giraffe. 18 is het aantal borstwervels van het paard.");
+M("anat", "Hoe heet de eerste halswervel (C1)?", ["Atlas", "Axis (draaier)", "Os sacrum"], "C1 is de atlas (ja-knikken), C2 de axis of draaier (nee-schudden).");
+M("anat", "Welke beweging maakt het gewricht tussen atlas en axis mogelijk?", ["Nee-schudden (draaien van de kop)", "Ja-knikken", "Buigen en strekken van de rug"], "Atlas-axis is het enige draaigewricht: de atlas draait om het tandvormige uitsteeksel van de axis. Ja-knikken gebeurt tussen schedel en atlas.");
+M("anat", "Uit welke drie botstukken bestaat elk heupbeen?", ["Os ilium, os ischium en os pubis", "Os sacrum, os ilium en femur", "Os pubis, patella en tibia"], "Darmbeen (ilium), zitbeen (ischium) en schaambeen (pubis). Samen met het os sacrum vormen de twee heupbeenderen het bekken.");
+M("anat", "Wat is de patella?", ["Een sesambeen in de eindpees van de kniestrekker", "Een meniscus tussen femur en tibia", "Een kruisband in het kniegewricht"], "De knieschijf is een verbeend peesdeel (sesambeen) dat in de trochlea van het femur glijdt.");
+M("anat", "Welk soort gewricht is het heupgewricht?", ["Kogelgewricht", "Scharniergewricht", "Draaigewricht"], "Heup en schouder zijn kogelgewrichten; elleboog, knie en teenkootjes zijn scharniergewrichten.");
+M("anat", "Hoe is het voorbeen van hond en kat met de romp verbonden?", ["Halfstar, via spieren (geen sleutelbeen)", "Star, via een vergroeiing", "Via een kogelgewricht met het borstbeen"], "De romp hangt als het ware tussen de voorbenen in spieren: een halfstarre verbinding.");
+M("anat", "Welk hormoon uit de bijschildklier verhoogt het calciumgehalte in het bloed?", ["Parathormoon (PTH)", "Calcitonine", "Insuline"], "PTH (bijschildklier) en actief vitamine D verhogen calcium; calcitonine uit de schildklier verlaagt het.");
+M("anat", "Welk dier heeft geen galblaas?", ["Paard", "Hond", "Kat"], "Bij het paard gaat de gal direct naar het duodenum.");
+M("anat", "Waar monden de afvoergangen van lever en pancreas uit?", ["In het duodenum", "In het jejunum", "In het ileum"], "Vlak na de maaguitgang, in het eerste deel van het duodenum.");
+M("anat", "Welk pancreasenzym verteert vetten?", ["Lipase", "Trypsine", "Amylase"], "Lipase splitst vet, trypsine eiwit en amylase zetmeel/koolhydraten.");
+M("anat", "Hoe is het bloed in de poortader?", ["Zuurstofarm en rijk aan voedingsstoffen", "Zuurstofrijk en arm aan voedingsstoffen", "Zuurstofrijk en rijk aan voedingsstoffen"], "De poortader brengt bloed uit darm en milt naar de lever. Zuurstof krijgt de lever via de a. hepatica.");
+M("anat", "Wat doet de dikke darm vooral?", ["Water en zouten opnemen; bacteriën maken vitamine B en K", "Eiwitten verteren met pepsine", "Gal produceren voor de vetvertering"], "In de dikke darm worden geen verteringssappen meer gemaakt.");
+M("anat", "Wat is caecotrofie bij het konijn?", ["Het direct van de anus opeten van blindedarmkeutels", "Het opeten van ontlasting van andere dieren", "Het herkauwen van voer"], "Caecotrofen bevatten eiwit en vitamine B en K uit de blinde darm. Coprofagie is een foute benaming.");
+M("anat", "Welk verschil heeft het speeksel van hond en kat met dat van de mens en herkauwers?", ["Het bevat geen verteringsenzymen", "Het bevat extra pepsine", "Het bevat galzouten"], "Bij hond en kat begint de vertering pas in de maag.");
+M("anat", "Waarom kan een cavia niet zonder vitamine C uit het voer?", ["Hij kan het zelf niet aanmaken", "Hij scheidt het via caecotrofie uit", "Het wordt in de pens afgebroken"], "Cavia's maken geen vitamine C aan; ze hebben groente, fruit of gesupplementeerde brok nodig.");
+M("anat", "In welk deel van de maag van het rund vindt de microbiële gisting vooral plaats? [aanvulling]", ["Pens", "Boekmaag", "Lebmaag"], "De pens is de grootste voormaag; de lebmaag is de echte maag met enzymen. Dit onderdeel staat niet in de lesstof.");
+M("anat", "Welke hartklep ligt tussen linkerboezem en linkerkamer?", ["Mitralisklep (tweeslippig)", "Tricuspidaalklep", "Pulmonaalklep"], "Rechts zit de tricuspidaalklep; de pulmonaal- en aortaklep zitten tussen kamer en slagader.");
+M("anat", "Waar begint de prikkel voor de hartslag?", ["In de sinusknoop in de wand van de rechterboezem", "In de AV-knoop", "In de bundel van His"], "Sinusknoop → AV-knoop → bundel van His → purkinjevezels.");
+M("anat", "Hoe bereken je het hartminuutvolume?", ["Hartfrequentie × slagvolume", "Ademfrequentie × teugvolume", "Slagvolume × bloeddruk"], "Ademfrequentie × teugvolume is het ademminuutvolume (nodig bij flowberekeningen).");
+M("anat", "Waar voel je bij de hond de pols?", ["Aan de binnenkant van het achterbeen (a. femoralis)", "Aan het voorbeen (v. cephalica)", "In de hals (v. jugularis)"], "De v. cephalica en v. jugularis zijn aders, gebruikt voor bloedafname.");
+M("anat", "Welk deel van de hersenen regelt evenwicht en coördinatie?", ["Kleine hersenen", "Grote hersenen", "Verlengde merg"], "Het verlengde merg regelt hartslag, ademhaling en bloeddruk; de grote hersenen bewustzijn en denken.");
+M("anat", "Waar liggen de centra voor hartslag en ademhaling?", ["In het verlengde merg", "In de kleine hersenen", "In de grote hersenen"], "Het verlengde merg verbindt hersenstam en ruggenmerg.");
+M("anat", "Wat doet het sympathische zenuwstelsel?", ["Maakt het lichaam actief: hartslag omhoog, pupillen wijd", "Stimuleert de vertering in rust", "Vertraagt de hartslag"], "De parasympathicus regelt rust en vertering.");
+M("anat", "In welke richting breng je bij de teef een speculum in?", ["Craniodorsaal", "Caudoventraal", "Recht craniaal-ventraal"], "Het vestibulum loopt steil caudoventraal, dus het speculum gaat craniodorsaal naar binnen.");
+M("anat", "Welke cellen in de testis maken testosteron?", ["Cellen van Leydig", "Sertolicellen", "Cellen van de epididymis"], "Sertolicellen begeleiden de zaadrijping en maken een beetje oestrogeen.");
+M("anat", "Wat is de enige accessoire geslachtsklier van de reu?", ["Prostaat", "Zaadblaasjes", "Bulbo-urethrale (Cowperse) klier"], "De kater heeft daarnaast nog een kleine bulbo-urethrale klier.");
+M("anat", "Welk dier heeft een dubbele cervix (elke baarmoederhoorn een eigen ingang)?", ["Konijn", "Kat", "Merrie"], "Typisch voor de voedster.");
+M("anat", "Wat betekent 'rostraal'?", ["Richting de neus (alleen aan de kop)", "Richting de staart", "Richting de rugzijde"], "Craniaal = richting kop, caudaal = richting staart, dorsaal = rugzijde, ventraal = buikzijde.");
+M("anat", "Welk vlak verdeelt het lichaam in een linker- en rechterhelft?", ["Mediaanvlak", "Horizontaal vlak", "Transversaal vlak"], "Het horizontale vlak scheidt dorsaal van ventraal, het transversale vlak craniaal van caudaal.");
+M("anat", "Welke eigenschap heeft een vene (ader)?", ["Dunne slappe wand met kleppen", "Dikke elastische wand", "Wand van één laag endotheel"], "Arteriën hebben een dikke elastische wand; capillairen één laag endotheel.");
+H("anat", "Klik op het hart.", "hart", "Het hart ligt in de thorax, iets links, ongeveer tussen de 3e en 6e rib, ventraal van de longen.");
+H("anat", "Klik op de lever.", "lever", "De lever ligt direct caudaal van het middenrif, tegen het diafragma aan.");
+H("anat", "Klik op de maag.", "maag", "De maag ligt dwars in de buikholte, caudaal van de lever.");
+H("anat", "Klik op een nier.", "nier", "De nieren liggen dorsaal in de buikholte, in de lendenstreek onder de lendenwervels.");
+H("anat", "Klik op de urineblaas.", "blaas", "De blaas ligt caudoventraal in de buikholte, voor het bekken.");
+H("anat", "Klik op de longen.", "longen", "De longen vullen het dorsale deel van de thorax, craniaal van het middenrif.");
+
+/* ---------- B1-K1 2-6 Voortplanting en geboorte ---------- */
+M("repro", "Welk hormoon veroorzaakt de eisprong (ovulatie)?", ["LH", "FSH", "Progesteron"], "De LH-piek veroorzaakt de ovulatie en zet de lege follikel om in een geel lichaam. FSH zorgt voor follikelgroei.");
+M("repro", "Welk hormoon houdt de dracht in stand?", ["Progesteron", "Oestrogeen", "Oxytocine"], "Progesteron remt GnRH (geen nieuwe bronst), houdt de dracht in stand en stimuleert de melkklieren.");
+M("repro", "Waar wordt progesteron vooral gemaakt?", ["In het gele lichaam (later ook placenta)", "In de follikelwand", "In de hypofyse"], "De follikelwand maakt oestrogeen; de hypofyse FSH en LH.");
+M("repro", "Wat doet prostaglandine bij een dier dat niet drachtig is geworden?", ["Het breekt het gele lichaam af, zodat een nieuwe cyclus kan starten", "Het veroorzaakt de ovulatie", "Het stimuleert de melkproductie"], "Daalt het progesteron, dan start de hypothalamus weer met GnRH.");
+M("repro", "Welk hormoon zorgt voor weeën en het 'schieten' van de melk?", ["Oxytocine", "Prolactine", "GnRH"], "Prolactine zorgt voor de melkproductie zelf.");
+M("repro", "Wat bepaalt bij landbouwhuisdieren het tijdstip van de geboorte?", ["Bijnierschorshormonen (corticosteroïden) van de vrucht", "Oxytocine van het moederdier", "FSH van het moederdier"], "Die hormonen laten vruchtvliezen en uterus prostaglandine maken, waardoor het gele lichaam verdwijnt.");
+M("repro", "Waarom is de kat een 'geïnduceerde ovulator'?", ["De eisprong volgt pas na de dekking", "Ze ovuleert elke 21 dagen spontaan", "Ze heeft maar één cyclus per jaar"], "De penisstekels van de kater geven de prikkel voor de LH-afgifte; ovulatie volgt 1-3 dagen later.");
+M("repro", "Welk van deze dieren is een spontane ovulator?", ["Cavia", "Konijn", "Fret"], "Konijn, fret en kat zijn geïnduceerde ovulatoren.");
+M("repro", "Hoe lang duurt de dracht van de hond gemiddeld?", ["63 dagen", "42 dagen", "115 dagen"], "Spreiding 58-68 dagen. 42 dagen is de fret, 115 dagen het varken.");
+M("repro", "Hoe lang duurt de dracht van het konijn?", ["31-32 dagen", "42 dagen", "68 dagen"], "Konijnen kunnen direct na de partus weer gedekt worden (postpartum-oestrus).");
+M("repro", "Hoe lang duurt de dracht van de cavia?", ["Gemiddeld 68 dagen", "31 dagen", "111 dagen"], "Lang voor een knaagdier, omdat de jongen als nestvlieders geboren worden. 111 dagen is de chinchilla.");
+M("repro", "Hoe lang duurt de dracht van de fret?", ["42 dagen", "63 dagen", "31 dagen"], "Gemiddeld 8 jongen; bij minder dan 3 pups komt de partus soms niet op gang.");
+M("repro", "Hoe lang duurt de dracht van de koe?", ["280 dagen", "330-340 dagen", "145-152 dagen"], "330-340 dagen is het paard, 145-152 dagen het schaap.");
+M("repro", "Hoe lang duurt de dracht van de merrie?", ["330-340 dagen (11 maanden)", "280 dagen", "115 dagen"], "Er zijn ook draagtijden van meer dan 365 dagen beschreven.");
+M("repro", "Hoe lang duurt de dracht van de zeug?", ["115 dagen", "145 dagen", "63 dagen"], "112-118 dagen na dekking.");
+M("repro", "Hoe lang duurt de dracht van het schaap?", ["145-152 dagen", "115 dagen", "280 dagen"], "Ook de geit draagt ongeveer 5 maanden (144-151 dagen).");
+M("repro", "Waarom moet een zeugje (cavia) vóór 6-8 maanden voor het eerst gedekt worden?", ["Rond 1 jaar verbeent de bekkensymfyse, waardoor ze niet normaal kan werpen", "Daarna wordt ze niet meer vruchtbaar", "Daarna is de draagtijd veel langer"], "Intacte oudere zeugjes die nooit gejongd hebben horen niet bij een intacte beer.");
+M("repro", "Wat is bij de teef het beste teken dat de partus binnen enkele uren tot 24 uur begint?", ["Een temperatuurdaling van 0,5-1,5 °C", "Melk in de melkklieren", "Minder eetlust"], "Daarom 3 keer per dag temperaturen in de laatste week.");
+M("repro", "Een teef heeft groene uitvloeiing, maar er is nog geen pup geboren. Wat betekent dit?", ["Spoed: de placenta laat los, direct naar de dierenarts", "Normaal, de geboorte begint binnen een dag", "Alleen bellen als het na 24 uur nog zo is"], "Groene uitvloeiing ná een pup is normaal, vóór de eerste pup niet.");
+M("repro", "Wanneer moet de eigenaar van een barende teef de dierenarts bellen?", ["Na 45 minuten heftig persen zonder dat de eerste pup komt", "Als de teef tussen twee pups een uur rust en slaapt", "Als een pup in stuitligging geboren wordt"], "Rustpauzes en stuitligging zijn bij de hond normaal. Ook 30 min heftig persen bij latere pups of 2-3 uur geen persen terwijl er nog pups komen is een reden om te bellen.");
+M("repro", "Wat is de stareflex bij de zeug?", ["Ze blijft stokstijf staan, ook bij druk op rug of flanken", "Ze bespringt andere zeugen", "Ze zwaait heftig met haar staart"], "Treedt op in het midden van de berigheid; dit is het moment van insemineren.");
+M("repro", "Wat laat een merrie zien in het laatste stadium van de hengstigheid (++++)?", ["Grotere hoeveelheden troebele urine, staart opzij, zakt door de achterbenen", "Ze slaat en bijt naar de hengst", "Ze opent en sluit alleen de vulva (blitzen)"], "Blitzen hoort bij ++, kleine beetjes heldere urine bij +++.");
+M("repro", "Een koe is 's ochtends vóór het melken goed tochtig. Wanneer insemineer je?", ["Dezelfde dag", "De volgende ochtend", "Na 21 dagen"], "Koeien die later op de dag tochtig worden, insemineer je de volgende ochtend.");
+M("repro", "Hoeveel biest moet een kalf krijgen?", ["Binnen 2 uur 2 liter (binnen 12 uur 10% van het lichaamsgewicht)", "Binnen 24 uur 1 liter", "Pas na 12 uur, eerst laten rusten"], "De darm neemt maar 24-36 uur antistoffen op. Een lam krijgt biest binnen 1 uur.");
+M("repro", "Wat moet je doen met de nageboorte van een merrie?", ["Controleren of hij compleet is; hij hoort binnen 1-2 uur af te komen", "Niets, een merrie eet hem op", "Er na 30 minuten krachtig aan trekken"], "Achtergebleven resten geven een zware baarmoederontsteking en kunnen hoefbevangenheid veroorzaken.");
+M("repro", "Een koe heeft na 24 uur de nageboorte nog niet afgedreven. Wat is juist?", ["Niet aan trekken; een uithangend deel afsnijden", "Krachtig aan de nageboorte trekken", "De koe laten liggen met het achterstel laag"], "Trekken geeft verwondingen, bloedingen en kans op een baarmoederprolaps.");
+M("repro", "Bij een keizersnede is de teef verdoofd met medetomidine. Wat druppel je bij een slappe pup onder de tong?", ["Atipamezol", "Naloxon", "Oxytocine"], "Naloxon gebruik je als er opiaten zijn gebruikt.");
+M("repro", "Een eigenaar denkt dat de voedster haar jongen verwaarloost, omdat ze er bijna nooit bij zit. Wat zeg je?", ["Normaal: een voedster zoogt 1 keer per dag een paar minuten", "Direct de jongen met de hand gaan voeren", "Het nest elke paar uur controleren en jongen wegen"], "Konijnenmelk is zeer energierijk; jongen drinken tot 20% van hun gewicht in 3-5 minuten.");
+M("repro", "Wat adviseer je na de geboorte bij een hamster?", ["Moeder en jongen 1-2 weken met rust laten", "Jongen dagelijks wegen", "Het nest direct schoonmaken"], "Bij verstoring komt kannibalisme voor.");
+M("repro", "Wat gebeurt er met een moertje (fret) dat in het seizoen niet gedekt wordt?", ["Ze blijft in oestrus, met kans op een dodelijke beenmergdepressie", "Ze is 16 dagen schijndrachtig en wordt daarna weer krols", "Ze gaat direct in anoestrus"], "Voorkomen met een Suprelorin-implantaat (voorkeur) of castratie.");
+M("repro", "Waarom wordt een drachtigheidscontrole bij de merrie op dag 14-16 gedaan?", ["Om een tweelingdracht uit te sluiten", "Om het geslacht te bepalen", "Om het dektijdstip te bepalen"], "Bij een tweeling wordt één vruchtblaasje via het rectum kapotgeknepen; tweelingdracht loopt bij het paard meestal slecht af.");
+M("repro", "Waaraan zie je dat een kalf in de geboorteweg nog leeft?", ["Het trekt zijn poot terug bij knijpen tussen de klauwtjes", "Het vruchtwater is groenbruin", "De nageboorte komt los"], "Ook een pulserende navelstreng, hartslag, slik- en anusreflex wijzen op leven. Loskomende nageboorte en haarverlies wijzen op een dood kalf.");
+M("repro", "Welke abortusverwekker bij rund, schaap en geit is een zoönose?", ["Q-koorts (Coxiella burnetii)", "IBR", "BVD"], "Ook leptospirose en Salmonella zijn zoönotische abortusverwekkers. Behandel elke abortus als besmettelijk.");
+M("repro", "Wanneer moet je bij een barende koe inwendig onderzoek doen of hulp bieden?", ["Als na het barsten van de waterblaas na 3 uur nog geen vruchtdelen verschijnen (vaars 6 uur)", "Als de waterblaas verschijnt", "Als de koe gaat liggen"], "Andere redenen: ontsluiting >6 uur, afwijkende ligging, stuitligging, geen vordering ondanks goede buikpers.");
+M("repro", "Wat zie je bij de poes in de oestrus (krolsheid)?", ["Luid miauwen, rollen, achterhand omhoog met staart opzij", "Bloederige uitvloeiing en gezwollen vulva", "Nestgedrag en melkproductie"], "Bloederige uitvloeiing hoort bij de pro-oestrus van de teef.");
+O("repro", "Zet de fasen van de cyclus van de teef in de juiste volgorde.", ["Pro-oestrus", "Oestrus", "Metoestrus", "Anoestrus"], "Pro-oestrus (±9 d, bloederig) → oestrus (±9 d, dekking) → metoestrus (±2 mnd, progesteron) → anoestrus (rust).");
+O("repro", "Zet de fasen van de geboorte bij het rund in de juiste volgorde.", ["Ontsluitingsfase", "Uitdrijvingsfase", "Nageboortefase", "Herstelfase (navuilen)"], "Ontsluiting 2-12 u, uitdrijving 1-6 u, nageboorte gemiddeld 6 u (ooi 2 u), herstel ±3 weken.");
+O("repro", "Zet de hormonen in de volgorde waarin ze bij de start van de cyclus werken.", ["GnRH (hypothalamus)", "FSH (follikelgroei)", "Oestrogeen (bronstgedrag)", "LH-piek (ovulatie)"], "GnRH laat de hypofyse FSH afgeven, de follikel maakt oestrogeen, de oestrogeenpiek geeft de LH-piek.");
+
+/* ---------- B1-K1 7-10 Socialisatie, gedrag en welzijn ---------- */
+M("soc", "Wanneer loopt de socialisatieperiode van de hond?", ["Van 3 tot 12 weken", "Van 0 tot 3 weken", "Van 12 weken tot 6 maanden"], "0-14 dagen is de neonatale fase; 12 weken tot 6 maanden is de angstfase (tweede socialisatieperiode).");
+M("soc", "Wat gebeurt er als een pup in een prikkelarme omgeving opgroeit zonder socialisatie?", ["Kennelsyndroom: angst voor nieuwe dingen, niet te herstellen", "Hij wordt juist extra sociaal", "Hij haalt het later vanzelf in"], "Na de socialisatieperiode is gemiste socialisatie niet meer goed te maken.");
+M("soc", "Waarom is de socialisatie van een kitten extra tijdgevoelig? [aanvulling]", ["De socialisatieperiode is kort: ongeveer 2 tot 7 weken", "Kittens socialiseren pas na 12 weken", "Katten hoeven niet te socialiseren"], "Kittens moeten dus al bij de fokker veel positief gehanteerd worden. Fokkers geven ze pas met ±12 weken weg.");
+M("soc", "Wat is klassieke conditionering?", ["Een neutrale prikkel koppelen aan iets betekenisvols, zoals 'braaf' + brokje", "Gedrag belonen zodat het vaker voorkomt", "Ongewenst gedrag bestraffen"], "Belonen zodat gedrag vaker voorkomt is operante conditionering.");
+M("soc", "Wat is habituatie?", ["Gewenning aan een prikkel", "Belonen van gewenst gedrag", "Angst voor nieuwe dingen"], "Een pup die veel verkeer meemaakt, went eraan.");
+M("soc", "Welke hoort bij de vijf vrijheden?", ["Vrij om natuurlijk (soorteigen) gedrag te vertonen", "Vrij van vaccinaties", "Vrij om zelf het voer te kiezen"], "De andere vier: vrij van honger en dorst, fysiek ongemak, pijn/verwonding/ziekte en angst/chronische stress.");
+M("soc", "Welke vier principes gebruikt Welfare Quality?", ["Goede voeding, goede huisvesting, goede gezondheid, passend gedrag", "Voeding, vaccinatie, ontworming, identificatie", "Ruimte, licht, lucht, water"], "Uitgewerkt in 12 criteria die aan het dier zelf worden gemeten.");
+M("soc", "Hoe hanteer je een konijn diervriendelijk?", ["Ondersteunen onder borst en achterhand; niet aan het nekvel optillen of op de rug draaien", "Optillen aan de oren", "Op de rug draaien zodat het rustig wordt"], "Op de rug draaien geeft tonische immobiliteit: het dier lijkt rustig maar is extreem gestrest.");
+M("soc", "Wat laat een defensief bange kat zien?", ["Oren plat, bolle rug, blazen, grote pupillen", "Oren naar voren, kleine pupillen, staart omhoog", "Kopjes geven en spinnen"], "Offensief: oren hoog of opzij, kleine pupil, grommen.");
+M("soc", "Waarom straf je een hond niet als hij gromt?", ["Dan verdwijnt de waarschuwing en bijt hij later zonder aankondiging", "Dan gaat hij juist meer grommen", "Grommen is altijd speels"], "Grommen is een trede op de agressieladder; leer de eigenaar de signalen herkennen.");
+M("soc", "Welk gedrag wijst op een slecht welzijn?", ["Stereotypieën zoals ijsberen of tralie bijten", "Veel slapen bij een kat", "Spelen met speelgoed"], "Ook apathie, automutilatie en kaal likken zijn welzijnssignalen.");
+O("soc", "Zet de ontwikkelingsfasen van de pup in de juiste volgorde.", ["Neonatale fase", "Overgangsfase", "Socialisatiefase", "Angstfase", "Puberteit"], "0-14 d, 14-21 d, 3-12 wk, 12 wk-6 mnd, ±6-9 mnd.");
+/* ---------- B1-K1 11-12 Wetgeving, arbo en bevoegdheden ---------- */
+M("wet", "Welke kanalisatiestatus hebben vaccins?", ["UDD", "UDA", "URA", "VRIJ"], "UDD: alleen de dierenarts mag ze toedienen. Daarom mag een paraveterinair geen (booster)vaccinaties geven.");
+M("wet", "Welke kanalisatie heeft een ontwormingsmiddel voor paard of rund meestal?", ["URA", "UDD", "VRIJ"], "URA: op recept ook bij apotheek of vergunde verkoper te koop, ook online.");
+M("wet", "Wat is het verschil tussen UDA en URA?", ["UDA-middelen mogen niet via internet verkocht worden", "URA-middelen mag alleen de dierenarts toedienen", "UDA-middelen zijn vrij verkrijgbaar"], "Bij UDA levert de dierenarts af, of de apotheek op recept, maar niet online.");
+M("wet", "Hoe lang is een recept voor antibiotica geldig?", ["5 dagen", "Onbeperkt", "1 maand"], "Overige recepten zijn onbeperkt geldig.");
+M("wet", "Wat is de eerste stap van de cascade bij gezelschapsdieren?", ["Een in de EU geregistreerd diergeneesmiddel voor een andere diersoort of indicatie", "Een humaan geneesmiddel", "Een ex tempore bereiding"], "Daarna humaan, dan ex tempore, dan import van buiten de EU.");
+M("wet", "Hoe mag een paraveterinair bloed afnemen?", ["Op aanwijzing en onder controle van de dierenarts (DA in het pand)", "Zelfstandig", "Helemaal niet"], "Hetzelfde geldt voor intuberen, urinekatheter, gebitsreiniging en verband aanleggen.");
+M("wet", "Onder welke voorwaarde mag een paraveterinair anesthetica toedienen?", ["Onder leiding en in directe aanwezigheid van de dierenarts (DA in dezelfde ruimte)", "Op aanwijzing, als de DA in het pand is", "Zelfstandig na een cursus"], "Ook hulp bij de geboorte en assisteren bij castratie valt onder 'directe aanwezigheid'.");
+M("wet", "Welke handeling is voor een paraveterinair verboden?", ["Een wond hechten", "Een infuus voorbereiden", "Een patiënt klaarmaken voor de operatie"], "Hechten, nieten, castreren en tanden trekken zijn operaties (verbreking van levend weefsel) en een diagnose stellen mag ook niet.");
+M("wet", "Welke handeling mag een paraveterinair zelfstandig uitvoeren?", ["Een eigenaar voorlichten over voeding", "Een lab-uitslag aan de eigenaar uitleggen", "Een booster tegen kennelhoest geven"], "Uitslagen bespreken is aan de dierenarts; vaccins zijn UDD.");
+M("wet", "Een eigenaar vindt de rekening veel te hoog. Is dit een zaak voor het Veterinair Tuchtcollege?", ["Nee, het tuchtcollege gaat alleen over het diergeneeskundig handelen", "Ja, de eigenaar kan daar altijd klagen", "Ja, maar alleen via de NVWA"], "Klachten over de rekening horen bij de praktijk of de geschillencommissie.");
+M("wet", "Wie mag een klacht indienen bij het Veterinair Tuchtcollege?", ["De eigenaar of verantwoordelijke van het dier (bv. pension), en bij algemeen belang de klachtambtenaar", "Iedere burger", "Alleen de NVWA"], "Algemeen belang: dierenwelzijn, diergezondheid of volksgezondheid.");
+M("wet", "Hoeveel pauze moet een medewerker minimaal krijgen bij een dienst van meer dan 5,5 uur?", ["30 minuten", "15 minuten", "45 minuten"], "Bij meer dan 10 uur werk: 45 minuten (Arbeidstijdenwet).");
+M("wet", "Waar vind je de regels over verlof en toeslagen voor de dierenartsassistent?", ["In de CAO Veterinaire sector", "In de Arbeidstijdenwet", "In de Opiumwet"], "Werktijden, pauzes en diensten staan in de Arbeidstijdenwet; tillen, houding en gevaarlijke stoffen in de Arbowet/Arbobesluit.");
+M("wet", "Hoeveel uur rust moet je minimaal hebben na een dienst?", ["11 uur", "8 uur", "14 uur"], "Na een nachtdienst 14 uur, na 3 of meer nachtdiensten 46 uur.");
+M("wet", "Wat is het maximum aantal uren per dienst?", ["12 uur", "10 uur", "14 uur"], "Maximaal 60 uur per week; gemiddeld 55 uur per week over 4 weken.");
+M("wet", "Met welk middel moet een zwangere medewerker extra voorzichtig zijn?", ["Prostaglandines (opname via de huid)", "Fysiologisch zout", "Chloorhexidine handzeep"], "Ook cytostatica, metronidazol, aglepriston (Alizin), jodium, isofluraan en röntgenstraling vermijden.");
+M("wet", "Voor wie geldt het Besluit houders van dieren?", ["Voor alle houders van dieren, met extra eisen bij bedrijfsmatig houden", "Alleen voor bedrijfsmatige houders", "Alleen voor landbouwhuisdieren"], "Huisvesting, verzorging en fokregels gelden voor iedereen.");
+M("wet", "Wanneer houd je honden of katten altijd bedrijfsmatig?", ["Bij meer dan 20 honden of katten per 12 maanden, en bij pension, asiel of dierenwinkel", "Bij meer dan 2 nesten per jaar", "Als je een website hebt"], "Andere criteria: fokken voor verkoop buiten de familie, opvang tegen betaling, adverteren, winstoogmerk.");
+M("wet", "Hoeveel nesten mag een teef maximaal krijgen?", ["1 per 12 maanden", "2 per 12 maanden", "3 per 24 maanden"], "Een kat mag 2 nesten per 12 maanden of 3 per 24 maanden.");
+M("wet", "Hoe oud moeten pups en kittens minimaal zijn voordat ze bij de moeder weg mogen?", ["7 weken", "5 weken", "12 weken"], "Fokkers houden kittens vaak tot ±12 weken, maar het wettelijke minimum is 7 weken.");
+M("wet", "Wat geldt voor de identificatie van een hond?", ["Binnen 7 weken chip en paspoort, registratie op het UBN van de houder binnen 2 werkdagen", "Chippen pas vóór de eerste reis naar het buitenland", "Chippen is alleen verplicht bij rashonden"], "Een kat chippen is niet verplicht, behalve voor een paspoort.");
+M("wet", "Welke wet regelt de kanalisatie van diergeneesmiddelen in de EU?", ["Diergeneesmiddelenverordening (EU) 2019/6", "Kernenergiewet", "Opiumwet"], "Sinds 28 januari 2022, samen met de Wet dieren en het Besluit diergeneesmiddelen.");
+M("wet", "Waarmee herken je een gevaarlijke stof in de praktijk? [deels aanvulling]", ["GHS-pictogrammen en het veiligheidsinformatieblad", "Aan de kleur van de verpakking", "Aan het REG NL-nummer"], "Het REG NL-nummer hoort bij een geregistreerd diergeneesmiddel.");
+
+/* ---------- B1-K1 13-14 Hygiëne, zoönosen en quarantaine ---------- */
+M("hyg", "Een pup met parvo wordt opgenomen. Waar plaats je hem?", ["Isolatieruimte", "Quarantaineruimte", "Ziekenboeg / afzonderingsruimte"], "Isolatie is voor dieren met (verdenking van) een besmettelijke ziekte.");
+M("hyg", "Een nieuwe hond met onbekende vaccinatiestatus komt in het asiel. Waar plaats je hem?", ["Quarantaineruimte", "Isolatieruimte", "Ziekenboeg / afzonderingsruimte"], "Quarantaine is voor op het oog gezonde dieren met onbekende gezondheid of vaccinatiestatus.");
+M("hyg", "Een hond herstelt van een maagoperatie en heeft geen besmettelijke ziekte. Waar hoort hij?", ["Ziekenboeg / afzonderingsruimte", "Isolatieruimte", "Quarantaineruimte"], "Artikel 3.13 Besluit houders van dieren: drie aparte ruimtes bij bedrijfsmatig houden.");
+M("hyg", "Hoe lang blijft een dier minimaal in quarantaine?", ["Tot minimaal 7 dagen na de juiste vaccinatie", "24 uur", "6 weken"], "Zo is het dier beschermd voordat het bij de groep komt.");
+M("hyg", "Wanneer verzorg je de isolatiepatiënt?", ["Als laatste", "Als eerste", "Maakt niet uit, met handschoenen"], "Werk altijd van schoon naar vies.");
+M("hyg", "Wat is beter bij de isolatieruimte: een voetenbad of wegwerpoverschoenen?", ["Wegwerpoverschoenen", "Voetenbad, mits 1 minuut", "Geen van beide nodig"], "Een voetenbad werkt pas na minimaal 5 minuten contact.");
+M("hyg", "Waar staan de letters YOPI voor?", ["Young, Old, Pregnant, Immunocompromised", "Your Own Personal Infection", "Yearly Obligatory Parasite Inspection"], "Deze groepen lopen het grootste risico op een ernstige zoönose.");
+M("hyg", "Welke handeling raad je een zwangere collega af vanwege Toxoplasma?", ["De kattenbak verschonen", "Een hond uitlaten", "Een konijn wegen"], "Kattenbak dagelijks verschonen met handschoenen (oöcysten zijn pas na 1-5 dagen besmettelijk).");
+M("hyg", "Welke verwekker geeft kattenkrabziekte?", ["Bartonella henselae", "Brucella canis", "Toxocara cati"], "Katten raken besmet via vlooien(poep) en hebben zelf meestal geen klachten.");
+M("hyg", "Hoe stel je ringworm (Microsporum canis) vast?", ["Woodse lamp (geelgroene oplichting), microscopie en kweek", "Bloedonderzoek", "Röntgenfoto"], "Een negatieve Woodse lamp sluit ringworm niet uit.");
+M("hyg", "Wat zie je bij de mens na besmetting met Ecthyma contagiosa (orf)?", ["Knobbels en blaren aan handen en onderarmen", "Hoge koorts en longontsteking", "Een rode kring rond een tekenbeet"], "Bij schaap en geit: wratachtige korsten aan bek en uier.");
+M("hyg", "Hoe raakt de mens vooral besmet met Q-koorts?", ["Door het inademen van besmet stof", "Door een tekenbeet", "Door rauwe vis"], "Uitscheiding gebeurt via nageboorte, vruchtwater, melk en mest van besmette geiten en schapen.");
+M("hyg", "Hoe raakt een hond meestal besmet met leptospirose?", ["Via urine van ratten of andere honden, bijvoorbeeld in zwemwater", "Via vlooien", "Via muggen"], "Gebruik bij een verdachte patiënt handschoenen en mondkapje en geen hogedrukspuit.");
+M("hyg", "Wat krijgt de mens bij besmetting met Chlamydophila psittaci?", ["Griepachtige klachten tot longontsteking", "Jeukende bultjes", "Diarree"], "Besmetting via ingedroogde vogelontlasting (papegaaienziekte).");
+M("hyg", "Welke verwekker veroorzaakt larva migrans bij de mens?", ["Toxocara canis of T. cati", "Giardia lamblia", "Sarcoptes scabiei"], "Larven kunnen naar oog of hersenen trekken; vooral kinderen via zandbakken.");
+M("hyg", "Wie zijn de tussengastheren van de vossenlintworm (Echinococcus multilocularis)?", ["Woelmuis en mens", "Hond en vos", "Vlo en luis"], "Vos en hond zijn eindgastheer. Bij de mens ontstaan jaren later cysten in de lever.");
+M("hyg", "Hoe was je werkkleding?", ["Op de praktijk, op 60 °C", "Thuis op 30 °C", "Alleen bij zichtbaar vuil"], "Zo neem je geen ziektekiemen mee naar huis.");
+M("hyg", "Iemand is gebeten door een hond met mogelijk rabiës. Wat moet hij doen?", ["De wond met zeep wassen en direct naar de huisarts", "Afwachten of er klachten komen", "Alleen de wond afplakken"], "Vaccinatie en serum werken alleen vóórdat er verschijnselen zijn.");
+M("hyg", "Wat zie je bij de mens na besmetting met Sarcoptes scabiei van een hond?", ["Jeukende bultjes die verdwijnen als het dier behandeld is", "Ringvormige kale plekken", "Koorts en geelzucht"], "De mijt plant zich op de mens niet voort.");
+M("hyg", "Wat zie je bij de mens na besmetting met Salmonella?", ["Binnen 24-48 uur buikkramp, braken en diarree", "Na weken een rode kring", "Na jaren levercysten"], "Bij het rund: hoge koorts, (bloederige) diarree en verwerpen.");
+
+/* ---------- B1-K1 15 / P5-K2 18 EHBO en spoedgevallen ---------- */
+O("ehbo", "Zet de stappen van de spoedbehandeling in de juiste volgorde (ABCDE).", ["Luchtweg vrijmaken", "Ademhaling controleren en beademen", "Circulatie controleren en bloedingen stelpen", "Neurologie en bewustzijn beoordelen", "Hele dier onderzoeken, temperatuur en omgeving"], "Airway, Breathing, Circulation, Disability, Exposure: wat het meeste levensgevaar oplevert eerst.");
+O("ehbo", "Zet deze operaties in de ideale werkvolgorde.", ["Castratie van een kater", "Abces openen bij een kat", "Pup met parvo behandelen in de isolatie"], "Van schoon naar vies; isolatiepatiënten altijd als laatste.");
+M("ehbo", "Een Duitse Dog is onrustig, probeert te braken maar er komt niets uit en de buik zwelt op. Wat is het meest waarschijnlijk?", ["Maagdilatatie-torsie: direct laten komen", "Gastro-enteritis: morgen op het spreekuur", "Corpus alienum in de slokdarm: afwachten"], "Loos braken bij een groot ras is maagtorsie tot het tegendeel bewezen is. Behandeling: infuus, sonderen of puncteren, operatie.");
+M("ehbo", "Een kater zit steeds op de kattenbak en perst, maar er komt niets. Wat doe je?", ["Direct laten komen: verdenking urinewegobstructie", "Laxeermiddel adviseren", "Morgen bellen als het niet beter gaat"], "Kalium en ureum stijgen snel en kunnen het hart stilzetten.");
+M("ehbo", "Een eigenaar belt: zijn kat ademt met open bek. Wat is je advies?", ["Altijd spoed: rustig in de reismand en direct komen", "Een uurtje afwachten", "De kat eerst laten drinken"], "Bij de kat is open-bek-ademen een teken van ernstige benauwdheid.");
+M("ehbo", "Een hond heeft al 2 minuten een epileptische aanval. Wat adviseer je de eigenaar?", ["Veilig laten liggen, niets in de bek, filmen en tijd noteren", "Aan de tong trekken zodat hij niet stikt", "De hond stevig vasthouden"], "Spoed bij een aanval van meer dan 10 minuten (status epilepticus) of meerdere aanvallen achter elkaar.");
+M("ehbo", "Hoe koel je een hond met hyperthermie?", ["Met lauw stromend water en water aanbieden", "In een bad met ijswater", "In een natte deken wikkelen en in de auto laten"], "IJskoud water vernauwt de bloedvaten in de huid, waardoor het dier slechter afkoelt.");
+M("ehbo", "Wat doe je als eerste bij een brandwond?", ["Spoelen met lauw stromend water en nat of steriel afdekken", "Zalf of boter aanbrengen", "Laten drogen aan de lucht"], "Voorkom onderkoeling en neem bij een chemische stof de verpakking mee.");
+M("ehbo", "Een mopshond heeft een oogprolaps. Wat adviseer je?", ["Oog vochtig houden met fysiologisch zout of lenzenvloeistof, niet terugduwen, direct komen", "Het oog zelf voorzichtig terugduwen", "Een droog gaasje op het oog drukken"], "Brachycefalen zijn gevoelig; met een kraag voorkom je krabben.");
+M("ehbo", "Hoe verzorg je een open fractuur tot het dier in de praktijk is?", ["Schoon en vochtig afdekken en de poot ondersteunen", "Het bot terugduwen", "Strak verbinden zonder polstering"], "Een kat met een gebroken poot niet verbinden, alleen ondersteunen.");
+M("ehbo", "Welke combinatie past bij shock?", ["Bleke slijmvliezen, verlengde CRT, snelle zwakke pols, koude poten", "Rode slijmvliezen, trage pols, warme poten", "Gele slijmvliezen en koorts"], "Behandeling: zuurstof, infuus en warm houden.");
+M("ehbo", "Wat is de normale hartfrequentie van een hond in rust?", ["60-120 per minuut", "120-180 per minuut", "20-40 per minuut"], "Kat: 120-180 per minuut.");
+M("ehbo", "Wat is de normale ademfrequentie van een kat in rust?", ["20-40 per minuut", "10-20 per minuut", "60-80 per minuut"], "Hond: 10-30 per minuut.");
+M("ehbo", "Wat is een normale capillaire vullingstijd (CRT)?", ["Minder dan 1 seconde", "2-3 seconden", "Meer dan 3 seconden"], "Een verlengde CRT wijst op een slechte doorbloeding, zoals bij shock.");
+M("ehbo", "Wat is de verhouding borstcompressies en beademingen bij reanimatie?", ["15 : 2", "30 : 5", "5 : 1"], "Borstkas 25-40% indrukken, 100-120 keer per minuut (groot dier 80-100).");
+M("ehbo", "Waar kan een hond aan doodgaan na het eten van druiven of rozijnen?", ["Acuut nierfalen", "Leverfalen", "Bloedingen"], "Ook kleine hoeveelheden kunnen fataal zijn; de gevoeligheid verschilt per hond.");
+M("ehbo", "Wat doen ui, knoflook, prei en bieslook bij hond, kat en paard?", ["Ze breken rode bloedcellen af, waardoor bloedarmoede ontstaat", "Ze geven hypoglykemie", "Ze geven nierfalen"], "De anemie ontstaat vaak pas enkele dagen later.");
+M("ehbo", "Wat gebeurt er als een hond xylitol (bijv. in kauwgom) eet?", ["Een insulinepiek met hypoglykemie (sloom, aanvallen, coma)", "Hartritmestoornissen door theobromine", "Afbraak van rode bloedcellen"], "Direct kleine beetjes voeren en een glucose-infuus.");
+M("ehbo", "Een kat heeft gespeeld met een boeket lelies. Wat is het risico?", ["Acuut nierfalen, ook door stuifmeel en vaaswater", "Alleen wat braken, geen gevaar", "Bloedingen na 3 dagen"], "Direct opname en 48-72 uur infuus.");
+M("ehbo", "Een kat heeft een vlooiendruppel voor honden gekregen en trilt. Welke stof is waarschijnlijk de oorzaak?", ["Permethrin", "Fipronil", "Imidacloprid"], "Behandeling: wassen met afwasmiddel, diazepam of methocarbamol, infuus.");
+M("ehbo", "Wat is het antidotum bij rattengif (anticoagulantia)?", ["Vitamine K", "Ethanol", "Atropine"], "Klachten (bloedingen) komen pas na 2-3 dagen; vitamine K moet weken gegeven worden.");
+M("ehbo", "Wat is het antidotum bij antivries (ethyleenglycol)?", ["Ethanol (alcohol)", "Vitamine K", "Naloxon"], "Antivries smaakt zoet en geeft acuut nierfalen.");
+M("ehbo", "Welke plant geeft bij paard en rund sluipend blijvende leverschade?", ["Jacobskruiskruid", "Taxus", "Eikels"], "Taxus geeft hartritmestoornissen en plotse dood; eikels geven nierfalen en obstructie.");
+M("ehbo", "Welke delen van de taxus zijn giftig?", ["Alle delen behalve het rode vruchtvlees", "Alleen de bessen", "Alleen de wortels"], "Voor paard, schaap en geit is 100-200 gram al dodelijk.");
+M("ehbo", "Een hond heeft macadamianoten gegeten en loopt na 12 uur wankel met zwakke achterhand. Wat is juist?", ["Dit past bij macadamia; meestal gaat het vanzelf over", "Dit is acuut nierfalen door macadamia", "Hij heeft direct vitamine K nodig"], "Ondersteunende zorg is meestal voldoende.");
+M("ehbo", "Welke chocolade is het giftigst voor een hond?", ["Pure chocolade", "Melkchocolade", "Witte chocolade"], "Hoe meer cacao, hoe meer theobromine.");
+M("ehbo", "Wanneer wek je na een vergiftiging geen braken op?", ["Als het dier suf is, krampt of een bijtende of schuimende stof heeft opgenomen", "Als het minder dan 2 uur geleden is", "Als het om chocolade gaat"], "Braken opwekken binnen 2 uur (max. 4): apomorfine bij hond, xylazine bij kat.");
+M("ehbo", "Wie belt het NVIC bij een vergiftiging?", ["De dierenarts of paraveterinair", "De eigenaar", "De apotheker"], "De eigenaar mag het NVIC niet zelf bellen.");
+M("ehbo", "Welke diersoort is extreem gevoelig voor avocado?", ["Vogels", "Honden", "Katten"], "Ook konijnen, knaagdieren en vissen. Een vogel kan snel overlijden.");
+M("ehbo", "Een eigenaar belt over een kitten van 8 weken met diarree sinds vanochtend. Wanneer moet het kitten komen?", ["Dezelfde dag", "Binnen een week", "Alleen als het na 3 dagen niet over is"], "Pups, kittens en knaagdieren drogen snel uit: altijd dezelfde dag zien.");
+M("ehbo", "Hoe snel loopt een shockinfuus bij de hond?", ["90 ml/kg per uur", "10 ml/kg per uur", "50 ml/kg per 24 uur"], "Kat: 50 ml/kg per uur, alleen kort en onder continue controle. 10 ml/kg/u is een waakinfuus.");
+M("ehbo", "Hoe vervoer je een kat na een aanrijding?", ["In een reismand waarvan je de bovenkant eraf haalt om haar erin te leggen", "In een deken op schoot", "Los op de achterbank"], "Een hond die niet kan staan vervoer je op een plank.");
+M("ehbo", "Hoe leg je een verband aan?", ["Van distaal naar proximaal, met 2/3 overlap en goede polstering", "Van proximaal naar distaal, zonder polstering", "Zo strak mogelijk, zodat het niet afzakt"], "Tape nooit rondom strak; controleer bij afzakken, likken of zwelling.");
+M("ehbo", "Een zogende teef trilt, hijgt en heeft een hoge temperatuur. Wat is het meest waarschijnlijk?", ["Eclampsie (calciumtekort): direct komen", "Schijndracht: afwachten", "Mastitis: zalf op de melkklier"], "Behandeling met een calciuminfuus; zonder behandeling kan ze binnen 8-12 uur sterven.");
+
+/* ---------- B1-K1 16 Voeding en dieetvoeding ---------- */
+N("voed", "Een blikvoer bevat 75% vocht en 8% eiwit. Hoeveel procent eiwit bevat het in de droge stof?", 32, 0.5, "%", "Droge stof = 100 - 75 = 25%. Eiwit in de droge stof = 8 / 25 × 100 = 32%.");
+N("voed", "Een brok bevat 25% eiwit, 10% vet en 50% koolhydraten. Hoeveel kcal levert 100 gram? (eiwit 3,5 - vet 8,7 - KH 3,5 kcal/g)", 349.5, 3, "kcal", "25 × 3,5 = 87,5; 10 × 8,7 = 87; 50 × 3,5 = 175. Totaal ≈ 350 kcal per 100 g.");
+N("voed", "Een hond eet 120 g eiwit; in de ontlasting zit 30 g eiwit. Wat is de verteerbaarheid?", 75, 0.5, "%", "(120 - 30) / 120 × 100 = 75%.");
+M("voed", "Hoe bepaalt de Weende-analyse het ruw eiwit?", ["Via het stikstofgehalte; het zegt niets over de kwaliteit", "Door het eiwit te verbranden en te wegen", "Door de aminozuren te tellen"], "Eiwit bevat ongeveer 16% stikstof.");
+M("voed", "Hoe wordt de fractie 'overige koolhydraten' in de Weende-analyse bepaald?", ["Berekend: 100% min vocht, as, ruw eiwit, ruw vet en ruwe celstof", "Direct gemeten met een enzym", "Door het voer te verassen"], "Dit is vooral zetmeel en suikers.");
+M("voed", "Wat is 'ruwe as' op een etiket?", ["Het mineralengehalte", "Verbrand vet", "Onverteerbare vezels"], "Bijvoorbeeld calcium, fosfor, magnesium, ijzer en zink.");
+M("voed", "Welke voedingsstof levert per gram de meeste energie?", ["Vet", "Eiwit", "Koolhydraten", "Vezels"], "Vet levert 8,7 kcal/g, eiwit en koolhydraten 3,5 kcal/g.");
+M("voed", "Wat gebeurt er bij een taurinetekort bij de kat?", ["Hartspierziekte (DCM) en netvliesdegeneratie", "Rachitis", "Bloedingen"], "Taurine is voor katten essentieel.");
+M("voed", "Wat is het gevolg van te veel calcium bij een pup van een groot ras?", ["Skeletafwijkingen (zoals OCD en HD)", "Sterkere botten zonder nadelen", "Taurinetekort"], "Geef nooit extra calcium bij een compleet pupvoer.");
+M("voed", "Wat veroorzaakt een tekort aan vitamine D?", ["Rachitis", "Bloedingen", "Nachtblindheid"], "Een tekort aan vitamine K geeft bloedingen.");
+M("voed", "Wat is het gevolg van een vettekort in het voer?", ["Doffe, schilferige vacht en droge huid", "Overgewicht", "Pancreatitis"], "Vet levert ook essentiële vetzuren en zorgt voor opname van vitamine A, D, E en K.");
+M("voed", "Wat is de belangrijkste eigenschap van een nierdieet?", ["Verlaagd fosfor", "Verhoogd eiwit", "Verhoogd natrium"], "Daarnaast beperkt eiwit van hoge kwaliteit, meer energie uit vet en omega-3. Het vertraagt de achteruitgang.");
+M("voed", "Waarom bevat een blaasdieet licht verhoogd natrium?", ["Het dier gaat meer drinken, waardoor de urine verdunt", "Om de bloeddruk te verhogen", "Om stenen sneller te laten groeien"], "Ook kenmerkend: lage RSS (oververzadiging) en aangepast magnesium, calcium en fosfor.");
+M("voed", "Welke blaassteen lost op met een dieet?", ["Struviet (in 5-12 weken)", "Calciumoxalaat", "Cystine in 1 week"], "Calciumoxalaat lost niet op en moet operatief worden verwijderd.");
+M("voed", "Wat kenmerkt een afvaldieet?", ["Weinig energie, veel vezels en veel eiwit", "Weinig eiwit en veel zetmeel", "Veel vet en weinig vezels"], "Vezels verzadigen, eiwit houdt de spiermassa op peil. Combineer met meer beweging.");
+M("voed", "Welk eiwit heeft de eerste keus in een hypoallergeen dieet?", ["Sterk gehydrolyseerd eiwit", "Rundvlees en kip samen", "Melkeiwit"], "De eiwitdeeltjes zijn te klein om een afweerreactie op te wekken. Alternatief: één nieuwe eiwitbron.");
+M("voed", "Welke stoffen zitten in een gewrichtsdieet?", ["Omega-3 (EPA/DHA), glucosamine en chondroïtine", "Extra calcium en fosfor", "Extra zetmeel"], "Het effect is zichtbaar na 6-8 weken; houd het gewicht laag.");
+M("voed", "Hoe werkt een gebitsdieet?", ["Een grote brok met vezelstructuur poetst de tand; natriumpolyfosfaat bindt calcium", "Het voer is extra zacht zodat het tandvlees rust krijgt", "Het bevat antibiotica"], "Geschikt voor gezonde volwassen dieren en na een gebitsreiniging.");
+M("voed", "Wat zijn prebiotica?", ["Voeding voor goede darmbacteriën, zoals FOS en MOS", "Levende goede bacteriën", "Ontstekingsremmende vetzuren"], "Probiotica zijn de levende bacteriën zelf.");
+M("voed", "Wanneer adviseer je probiotica?", ["Bij diarree of tijdens en na een antibioticakuur", "Bij een nierdieet", "Bij overgewicht"], "Ze moeten het maagzuur overleven en de darm koloniseren.");
+M("voed", "Wat is juist bij de voeding van een pup van een groot ras?", ["Energie iets lager, optimale Ca/P-verhouding, langzaam laten groeien", "Zo veel mogelijk energie voor snelle groei", "Extra calcium bijgeven"], "Grote rassen groeien lang en kwetsbaar door.");
+M("voed", "Op welke leeftijd is een Duitse Dog volgroeid?", ["Rond 24 maanden", "Rond 8-10 maanden", "Rond 12 maanden"], "Een teckel is met 8-10 maanden volgroeid en weegt dan 20 keer het geboortegewicht, een Duitse Dog 100 keer.");
+M("voed", "Wat kan een kat niet zelf aanmaken uit caroteen?", ["Vitamine A", "Vitamine C", "Vitamine K"], "Katten hebben voorgevormd vitamine A nodig.");
+M("voed", "Wat is de basis van het rantsoen van een konijn?", ["Onbeperkt hooi", "Muesli", "Fruit"], "Vezels houden de darm in beweging en slijten het doorgroeiende gebit.");
+M("voed", "Hoeveel minder energie heeft een hond na castratie ongeveer nodig?", ["Ongeveer 30%", "Ongeveer 5%", "Ongeveer 60%"], "Daardoor is castratie een risicofactor voor overgewicht.");
+M("voed", "Hoeveel gewicht mag een hond per week verliezen op een afvalprogramma?", ["1-2% van het lichaamsgewicht", "5-10%", "Zo veel mogelijk"], "Stap voor stap: uitgangssituatie, motiveren, verwachtingen, behandeling, behoud.");
+M("voed", "Wat betekent 'volledig diervoeder' op een etiket? [aanvulling]", ["Het voer is als enige voeding geschikt", "Het is een snack", "Het is een dieetvoer op recept"], "Een aanvullend diervoeder is niet als enige voeding bedoeld.");
+M("voed", "Een eigenaar volgt de voerhoeveelheid op het etiket, maar zijn gecastreerde hond wordt dikker. Wat adviseer je? [aanvulling]", ["De hoeveelheid aanpassen aan conditiescore en streefgewicht, snoepjes meetellen", "Het etiket precies blijven volgen", "Overstappen op pupvoer"], "Het etiket is een richtlijn voor een gemiddeld dier.");
+M("voed", "Waarom krijgt een fret geen voer met veel plantaardig eiwit?", ["Het geeft struvietstenen; de fret is een vleeseter", "Het geeft taurinetekort", "Hij kan het niet ruiken"], "Vooral drachtige moertjes zijn gevoelig.");
+/* ---------- B1-K1 17 Diergezondheid ---------- */
+M("gez", "Waar meld je een verdenking van een meldingsplichtige dierziekte?", ["Bij het Landelijk Meldpunt Dierziekten van de NVWA", "Bij de Gezondheidsdienst voor Dieren", "Bij de gemeente"], "De NVWA voert de bestrijding uit; de GD doet monitoring en certificering.");
+M("gez", "Wie is verplicht een verdenking van een meldingsplichtige ziekte te melden?", ["De houder, de dierenarts en het laboratorium", "Alleen de dierenarts", "Alleen de houder"], "Het lab meldt bij een ongunstige uitslag.");
+M("gez", "Welke ziekte is meldingsplichtig?", ["Brucella canis", "Besmettelijke hondenhoest", "Giardia"], "Ook rabiës, vogelgriep, Q-koorts, varkenspest en Echinococcus granulosus zijn meldingsplichtig.");
+M("gez", "Wat is een voordeel van een levend (verzwakt) vaccin?", ["Snelle, sterke en lang werkende immuniteit", "Het bevat altijd een hulpstof", "Het is altijd veilig voor drachtige dieren"], "Een dood vaccin heeft een adjuvans en meerdere entingen nodig.");
+M("gez", "Wat geldt voor een dood (geïnactiveerd) vaccin?", ["Het is veilig maar heeft een hulpstof en meerdere entingen nodig", "Het vermeerdert zich in het dier", "Eén enting geeft levenslange bescherming"], "De afweerreactie is zwakker dan bij een levend vaccin.");
+M("gez", "Waarom krijgt een pup een reeks vaccinaties tot 16 weken?", ["Maternale antistoffen kunnen het vaccin neutraliseren en dalen per pup op een ander moment", "Omdat een vaccin maar 4 weken werkt", "Omdat pups pas na 16 weken antistoffen maken"], "Zo overbrug je de immuniteitskloof.");
+M("gez", "Wat doet een booster?", ["Het frist het afweergeheugen op en verlengt de bescherming", "Het geneest een bestaande infectie", "Het vervangt maternale antistoffen"], "Daarom herhaalvaccinaties volgens schema.");
+M("gez", "Hoe vaak vaccineer je een volwassen hond tegen leptospirose?", ["Jaarlijks", "Elke 3 jaar", "Eenmalig"], "Parvo, hondenziekte en HCC elke 3 jaar.");
+M("gez", "Wat is het vaccinatieschema van het konijn?", ["Combivaccin myxomatose + RHD-1 + RHD-2 vanaf 5 weken, daarna jaarlijks", "Alleen myxomatose, elke 3 jaar", "RHD-2 alleen bij buitenkonijnen"], "Bescherming na 3 weken.");
+M("gez", "Wat geldt voor de influenzavaccinatie van het paard?", ["Verplicht voor wedstrijden (KNHS), daarna jaarlijks", "Wettelijk verplicht voor elk paard", "Alleen bij veulens"], "Vaak gecombineerd met tetanus.");
+M("gez", "Waar vaccineer je een kat bij voorkeur?", ["In flank, poot of staart, niet tussen de schouderbladen", "Altijd tussen de schouderbladen", "In de nek, intramusculair"], "Vanwege het (zeldzame) injection-site sarcoom.");
+M("gez", "Wanneer is een rabiësvaccinatie geldig voor reizen?", ["21 dagen na de vaccinatie", "Direct", "Na 6 maanden"], "Vaccineren vanaf 12 weken, dus reizen vanaf 15 weken.");
+M("gez", "Welke bestrijdingsprogramma's zijn voor het rund verplicht via ZuivelNL?", ["IBR, BVD, paratuberculose en leptospirose", "Salmonella en maagdarmwormen", "Aujeszky en varkenspest"], "Salmonella en maagdarmwormen zijn vrijwillig.");
+M("gez", "Welk bestrijdingsprogramma is bij het varken verplicht?", ["Aujeszky", "Snuffelziekte", "Schurft"], "Snuffelziekte-vrij en schurftvrij zijn vrijwillige certificaten.");
+M("gez", "Voor welke bedrijven is Q-koortsvaccinatie verplicht?", ["Melkgeiten- en melkschapenbedrijven en bedrijven met een publieksfunctie", "Alle varkensbedrijven", "Alle hondenkennels"], "Bedrijven met meer dan 50 melkgeiten of -schapen laten elke 2 weken tankmelk onderzoeken.");
+M("gez", "Wat is verplicht als een koe na meer dan 100 dagen dracht verwerpt?", ["Onderzoek op brucellose en leptospirose", "Direct ruimen", "Niets, tenzij er meer koeien verwerpen"], "Binnen 7 dagen.");
+M("gez", "Waarvoor is een titerbepaling geen vervanging van vaccinatie?", ["Leptospirose", "Parvo", "Hondenziekte"], "Ook niet voor kennelhoest en niesziekte.");
+M("gez", "Wat zie je bij een teef met Brucella canis?", ["Abortus en dode of zwakke pups", "Bloederige diarree", "Jeukende kale plekken"], "Bij de reu ontsteking van testis, bijbal of prostaat en onvruchtbaarheid.");
+M("gez", "Wat zie je bij pluimvee met aviaire influenza (vogelgriep)?", ["Sufheid, legdaling, gezwollen kop, blauwe kam en veel sterfte", "Alleen wat niezen", "Jeuk en veerverlies"], "Melden bij de NVWA; het bedrijf wordt geblokkeerd.");
+M("gez", "Waarom is een eerste besmetting met Toxoplasma gondii gevaarlijk voor een zwangere vrouw?", ["Het kan een miskraam of hersen- en oogafwijkingen bij het kind geven", "Het geeft altijd hoge koorts bij de moeder", "Het veroorzaakt diabetes"], "Bij gezonde volwassenen verloopt de infectie meestal mild.");
+M("gez", "Wat zie je bij een hond met Borrelia burgdorferi?", ["Soms koorts en kreupelheid", "Bloederige diarree", "Kale grijze plekken"], "Bij de mens: rode kring (erythema migrans), griepgevoel, later gewrichtsklachten.");
+
+/* ---------- P5-K2 19 Rasspecifieke problemen ---------- */
+M("ras", "Welk ras heeft vrijwel altijd op latere leeftijd mitralisinsufficiëntie?", ["Cavalier King Charles Spaniel", "Dobermann", "Duitse herder"], "Bij de Dobermann komt vooral dilatatieve cardiomyopathie (DCM) voor.");
+M("ras", "Bij welk ras komt dilatatieve cardiomyopathie (DCM) veel voor?", ["Dobermann", "Teckel", "Chihuahua"], "DCM komt vooral voor bij grote honden van middelbare leeftijd.");
+M("ras", "Welk ras is gevoelig voor hernia nuclei pulposi?", ["Teckel", "Duitse Dog", "Border collie"], "Kortpotige (chondrodystrofe) rassen.");
+M("ras", "Welk ras heeft vaak exocriene pancreasinsufficiëntie (EPI)?", ["Duitse herder", "Cavalier King Charles Spaniel", "Perzische kat"], "Veel eten, vermageren en bleke, vette ontlasting; levenslang enzymen.");
+M("ras", "Welk ras is gevoelig voor uraatstenen?", ["Dalmatiër", "Labrador", "Boxer"], "Daarom een laag-purinedieet.");
+M("ras", "Bij welke katten komt HCM erfelijk voor?", ["Perzisch, Britse korthaar en Maine Coon", "Siamees en Abessijn", "Europese korthaar"], "HCM is de meest voorkomende hartziekte bij de kat.");
+M("ras", "Welk ras heeft vaak entropion?", ["Chow Chow", "Cocker spaniel", "Sint Bernard"], "Cocker spaniel en Sint Bernard hebben vaker ectropion.");
+M("ras", "Welk ras is gevoelig voor erfelijke epilepsie?", ["Border collie", "Mopshond", "Yorkshire terriër"], "Primaire epilepsie begint meestal tussen 6 maanden en 6 jaar.");
+M("ras", "Welke problemen horen bij brachycefale rassen zoals de Franse bulldog?", ["BOS, oververhitting en oogprolaps", "Heupdysplasie en osteosarcoom", "EPI en mega-oesofagus"], "Er gelden fokregels voor kortsnuitige honden.");
+M("ras", "Welke kattenrassen zijn gevoeliger voor FIP?", ["Ragdoll, Abessijn, Birmaan en Rex", "Maine Coon en Noorse boskat", "Siamees en Oriëntaal"], "Vooral jonge katten (6-24 maanden) in groepen.");
+
+/* ---------- P5-K2 20 Algemene ziektesymptomen ---------- */
+M("symp", "Wat kenmerkt regurgiteren ten opzichte van braken?", ["Passief, vaak direct na het eten, onverteerd en zonder gal", "Actief met buikpers en misselijkheid", "Altijd met bloed"], "Regurgiteren wijst op een probleem in keel of slokdarm.");
+M("symp", "Welke diarree past bij een dikkedarmprobleem?", ["Vaak kleine beetjes met slijm en vers rood bloed", "Grote hoeveelheden waterige ontlasting", "Zwarte teerachtige ontlasting"], "Zwart (melena) wijst op bloed uit maag of dunne darm.");
+M("symp", "Wat adviseer je een eigenaar van een volwassen kat met lichte diarree?", ["Licht verteerbaar voer en vocht; niet laten vasten", "Twee dagen niets laten eten", "Een humane diarreeremmer geven"], "Vasten kan bij een dikke kat leververvetting geven.");
+M("symp", "Waarom is een kat die 2 dagen niet eet een probleem?", ["Risico op leververvetting (lipidose), vooral bij dikke katten", "Katten hebben dan meer kans op tandsteen", "Het is geen probleem, katten vasten vaker"], "Bij konijn en cavia is 12-24 uur niet eten al spoed (darmstilstand).");
+M("symp", "Een konijn eet sinds vanochtend niet en heeft geen keutels. Wat is de urgentie?", ["Spoed: risico op darmstilstand (SAS)", "Afwachten tot morgen", "Alleen hooi geven en over een week bellen"], "Behandeling: pijnstilling, motiliteitsmiddelen, infuus, dwangvoeren.");
+M("symp", "Wat adviseer je bij een hond die veel drinkt en plast (PU/PD)?", ["Water nooit beperken; drinkhoeveelheid meten en ochtendurine meenemen", "Water 's nachts weghalen", "Minder droogvoer geven en afwachten"], "Mogelijke oorzaken: nieren, diabetes, Cushing, pyometra, lever, medicatie.");
+M("symp", "Een intacte teef drinkt veel, is sloom en braakt, 6 weken na de loopsheid. Wat is de urgentie?", ["Spoed: verdenking pyometra", "Normaal na een loopsheid", "Geen spoed, schijndracht"], "Behandeling: infuus, antibiotica en ovariohysterectomie.");
+M("symp", "Een eigenaar zegt dat zijn kater 'verstopt zit en perst'. Waar denk je aan?", ["Mogelijk een urinewegobstructie: spoed", "Altijd obstipatie: laxeermiddel", "Normaal gedrag"], "Laat de kater direct komen.");
+M("symp", "Hoe herken je uitdroging?", ["Huidplooi blijft staan, droge slijmvliezen, ingevallen ogen", "Rode slijmvliezen en hijgen", "Veel plassen en drinken"], "Mild: ORS; ernstig: infuus.");
+M("symp", "Welk middel mag een eigenaar zijn kat met koorts nooit geven?", ["Paracetamol", "Water", "Smakelijk voer"], "Paracetamol is voor katten zeer giftig. Ontstekingsremmers alleen via de dierenarts.");
+M("symp", "Een hond met besmettelijke hondenhoest komt naar de praktijk. Welke maatregel neem je?", ["Apart laten wachten (bijv. in de auto) en een borsttuig adviseren", "In de drukke wachtkamer laten zitten", "Een strakke halsband gebruiken"], "Hondenhoest is zeer besmettelijk voor andere honden.");
+M("symp", "Wanneer zijn convulsies spoed?", ["Bij een aanval langer dan 10 minuten of meerdere aanvallen achter elkaar", "Bij elke aanval van meer dan 10 seconden", "Nooit"], "Ook bij een eerste aanval, vergiftiging, hypoglykemie of eclampsie.");
+M("symp", "Een kat kan plotseling haar achterpoten niet meer gebruiken en heeft koude poten. Waar denk je aan?", ["Trombo-embolie (vaak bij HCM)", "Heupdysplasie", "Artrose"], "Pijnlijk en met slechte prognose; direct laten komen.");
+M("symp", "Hoe herken je pijn bij een hond?", ["Kromme rug, hijgen, verstoppen, niet eten of likken aan een plek", "Kwispelen en spelen", "Veel slapen in een normale houding"], "Hanteer voorzichtig, eventueel met muilkorf.");
+
+/* ---------- P5-K2 21 Veelvoorkomende ziektes ---------- */
+M("ziek", "Welke infectieziekte past bij een jonge hond met braken en binnen een dag bloederige, stinkende diarree?", ["Parvo", "Hondenziekte", "HCC", "Kennelhoest", "Leptospirose"], "Parvo treft vooral pups van 6 weken tot 6 maanden. Isoleren en infuus.");
+M("ziek", "Een oude kat eet veel maar valt af, is onrustig en heeft een snelle hartslag. Welke aandoening past hierbij?", ["Hyperthyreoïdie", "Hypothyreoïdie", "Ziekte van Cushing", "Ziekte van Addison", "Feline astma"], "Behandeling: radioactief jodium, tabletten, operatie of een jodiumarm dieet.");
+M("ziek", "Welke klachten passen bij heupdysplasie?", ["Heupwiegen, startkreupelheid en spieratrofie van de achterhand", "Plotselinge verlamming van de voorpoten", "Wisselende kreupelheid die vanzelf overgaat"], "Wisselende kreupelheid bij een jonge snelgroeiende hond die vanzelf overgaat is enostosis.");
+M("ziek", "Hoe stel je een voorste kruisbandletsel vast?", ["Met het schuifladefenomeen", "Met een Woodse lamp", "Met een fluoresceïnetest"], "Meestal volgt een operatie (TPLO of TTA).");
+M("ziek", "Wat doe je eerst bij een verdenking van osteosarcoom?", ["Thoraxfoto's maken om uitzaaiingen op te sporen", "Direct amputeren", "Alleen pijnstillers geven"], "Osteosarcoom zaait snel uit naar de longen.");
+M("ziek", "Wanneer geeft chronische nierinsufficiëntie zichtbare klachten?", ["Bij ongeveer 75-85% functieverlies", "Al bij 10% functieverlies", "Pas bij volledig nierfalen"], "Daarom bij katten vanaf 8 jaar jaarlijks bloedonderzoek.");
+M("ziek", "Wat is bij de kat de meest voorkomende oorzaak van cystitis?", ["Idiopathisch (stressgerelateerd)", "Bacteriële infectie", "Blaastumor"], "Bacteriële cystitis is bij de kat zeldzaam (2-5%), bij de hond juist gebruikelijk.");
+M("ziek", "Welke behandeling heeft incontinentie bij een gecastreerde teef meestal?", ["Levenslang medicatie die de spanning van de blaashals verhoogt", "Antibiotica", "Een nierdieet"], "Vooral bij grote rassen na castratie.");
+M("ziek", "Wanneer ontstaat een pyometra meestal?", ["4-8 weken na de loopsheid", "Tijdens de pro-oestrus", "Direct na de geboorte"], "Na de geboorte spreek je van endometritis.");
+M("ziek", "Hoe behandel je benigne prostaathyperplasie?", ["Castratie (chirurgisch of chemisch)", "Een blaasdieet", "Antibiotica"], "De prostaat krimpt na castratie.");
+M("ziek", "Hoe voorkom je uteruscarcinoom bij het konijn?", ["Castratie (OVH) bij voorkeur tussen 6 maanden en 1-2 jaar", "Jaarlijks vaccineren", "Een vezelrijk dieet"], "50-80% van de voedsters ouder dan 4 jaar krijgt het.");
+M("ziek", "Welk deel van de melkkliertumoren bij de kat is kwaadaardig?", ["Ongeveer 85%", "Ongeveer 10%", "Ongeveer 50%"], "Bij de hond ongeveer 50%. Vroeg castreren verkleint het risico.");
+M("ziek", "Wat zie je bij schijndracht bij de teef?", ["Melkklierzwelling, nestgedrag en speelgoed bemoederen, 6-8 weken na de loopsheid", "Bloederige uitvloeiing tijdens de loopsheid", "Koorts en PU/PD"], "Meestal geen therapie: afleiden en niet aan de melkklieren laten likken.");
+M("ziek", "Wat is acaecotrofie bij het konijn?", ["Het konijn eet zijn blindedarmkeutels niet op, waardoor ze rond de anus plakken", "Het konijn kan niet meer poepen", "Het konijn eet zijn eigen harde keutels"], "Oorzaken: overgewicht, te veel brok, gebits- of rugpijn. Risico op myiasis.");
+M("ziek", "Wat is de oorzaak van haken op de kiezen en 'olifantstanden' bij het konijn?", ["Te weinig slijtage door te weinig hooi (of erfelijke stand)", "Te veel hooi", "Een virusinfectie"], "Behandeling: kiezen vijlen onder sedatie; preventie: onbeperkt hooi.");
+M("ziek", "Wat zie je bij resorptielaesies bij de kat?", ["Een gaatje bij de tandhals en kaakklapperen bij aanraking", "Gele aanslag zonder pijn", "Een gezwollen wang door een abces"], "De dierenarts trekt de aangetaste tand.");
+M("ziek", "Wat is de eerste stap richting parodontitis?", ["Tandplaque die verkalkt tot tandsteen en tandvleesontsteking geeft", "Een gebroken tand", "Te veel droogvoer"], "Parodontitis: bloedend tandvlees, stank, losse tanden; bacteriën belasten hart en nieren.");
+M("ziek", "Wat is de meest voorkomende hartziekte bij de kat?", ["Hypertrofische cardiomyopathie (HCM)", "Mitralisinsufficiëntie", "Dilatatieve cardiomyopathie"], "Risico op trombo-embolie van de achterhand.");
+M("ziek", "Welke klachten passen bij het brachycefaal obstructiesyndroom?", ["Snurken, hijgen, slecht tegen warmte en inspanning", "Kreupelheid en zwelling van de poot", "Veel drinken en plassen"], "Behandeling: operatie, gewicht laag, warmte vermijden, tuig in plaats van halsband.");
+M("ziek", "Hoe behandel je feline astma?", ["Luchtwegverwijders en corticosteroïden, vaak via inhalatie", "Antibiotica 6 weken", "Alleen een dieet"], "Ook stofarme kattenbakvulling en niet roken in huis.");
+M("ziek", "Wat zie je bij een kat met hernia diafragmatica na een aanrijding?", ["Ernstige benauwdheid met een pendelende ademhaling", "Bloederige diarree", "Jeuk"], "Buikorganen schuiven door een scheur in het middenrif de borstholte in.");
+M("ziek", "Hoe stel je een ulcus corneae vast?", ["Met fluoresceïne: het defect kleurt groen", "Met een Schirmer tear test", "Met een röntgenfoto"], "Geen oogzalf met corticosteroïden bij een ulcus.");
+M("ziek", "Wat is bij de kat een veelvoorkomende oorzaak van otitis externa?", ["Oormijt", "Hangoren", "Te veel haar in de gehoorgang"], "Bij de hond is het vaker bacterie of gist, vooral bij hangoren en dichte haargroei.");
+M("ziek", "Welke klachten passen bij de ziekte van Cushing bij de hond?", ["PU/PD, veel eten, hangbuik, hijgen en kale dunne huid", "Trage hartslag en shock", "Dik ondanks weinig eten, kouwelijk"], "Dik, sloom en kouwelijk past bij hypothyreoïdie.");
+M("ziek", "Wat kenmerkt een Addison-crisis?", ["Shock met een trage hartslag; natrium laag, kalium hoog", "Hoge koorts en snelle hartslag", "Veel eten en vermageren"], "Spoed: infuus, daarna levenslang hormoon.");
+M("ziek", "Een hond met diabetes trilt en is wankel na zijn insuline. Wat adviseer je?", ["Suiker of honing op het slijmvlies en direct naar de praktijk", "Een extra dosis insuline", "Laten slapen"], "Dit is een hypoglykemie.");
+M("ziek", "Welke verschijnselen horen bij hondenziekte (Carré)?", ["Koorts, pussige oog- en neusuitvloeiing, hoest en later zenuwverschijnselen", "Alleen een droge toeterende hoest", "Bloederige diarree binnen een dag"], "Ook verhoornde voetzolen en neus (hard pad disease).");
+M("ziek", "Welk verschijnsel kan na HCC optreden?", ["Een blauwwit troebel oog ('blue eye')", "Kaakklem", "Myxomen op de kop"], "HCC wordt veroorzaakt door een adenovirus.");
+M("ziek", "Welke verwekkers geven besmettelijke hondenhoest?", ["Parainfluenzavirus en Bordetella bronchiseptica", "Parvovirus en coronavirus", "Herpesvirus en calicivirus"], "Herpes- en calicivirus geven niesziekte bij de kat.");
+M("ziek", "Wat kan kattenziekte (panleucopenie) bij een drachtige poes veroorzaken?", ["Abortus of kittens met evenwichtsstoornissen (cerebellaire hypoplasie)", "Extra grote nesten", "Geen gevolgen"], "Het virus is zeer resistent in de omgeving.");
+M("ziek", "Wat is kenmerkend voor het herpesvirus bij niesziekte?", ["De kat blijft levenslang drager en kan bij stress opnieuw klachten krijgen", "Het geeft altijd mondzweren", "Het overleeft maanden in de omgeving"], "Calicivirus geeft mondzweren en overleeft langer in de omgeving.");
+M("ziek", "Hoe wordt FeLV vooral overgedragen?", ["Via speeksel: elkaar wassen, bakken delen, likken", "Via muggen", "Via rauw vlees"], "FIV gaat vooral via bijtwonden.");
+M("ziek", "Wat zie je bij een konijn met myxomatose?", ["Gezwollen kop en oogleden en pussige ogen", "Plotselinge dood met een bloedneus", "Scheve kop"], "Overgebracht door muggen en vlooien; jaarlijks vaccineren.");
+M("ziek", "Wat is typisch voor VHD/RHD bij het konijn?", ["Plotselinge dood binnen 1-3 dagen, soms met een bloedneus", "Langzaam vermageren over maanden", "Jeuk en kale plekken"], "Geen behandeling; jaarlijks vaccineren vanaf 5 weken.");
+M("ziek", "Welke verwekker veroorzaakt droes bij het paard?", ["Streptococcus equi (bacterie)", "Equine herpesvirus", "Influenzavirus"], "Kenmerkend: sterk gezwollen, abcederende lymfeknopen bij keel en kaak.");
+M("ziek", "Wat zie je bij een paard met tetanus?", ["Stijfheid die bij de kauwspieren begint (kaakklem) en het derde ooglid voor het oog", "Hoge koorts en hoesten", "Diarree en koliek"], "Behandeling in een donkere, rustige stal met antitoxine.");
+M("ziek", "Welke vormen kan rhinopneumonie (equine herpesvirus) hebben?", ["Verkoudheid, abortus en een neurologische vorm", "Alleen koliek", "Alleen huidproblemen"], "Vaccinatie beschermt minder goed tegen de abortusvorm.");
+M("ziek", "Hoeveel rust heeft een paard na influenza nodig?", ["Ongeveer een week per dag koorts", "Een dag", "Geen rust nodig"], "Isoleren in een stofvrije box.");
+M("ziek", "Wat is de eerste stap bij elk gedragsprobleem zoals plassen in huis?", ["Een medische oorzaak uitsluiten", "De hond in de bench zetten", "Straffen bij betrappen"], "Denk aan PU/PD, cystitis, blaasstenen, incontinentie of artrose.");
+/* ---------- P5-K2 21 Parasieten en ontworming ---------- */
+M("para", "Hoe raken pups besmet met de hondenspoelworm (Toxocara canis)?", ["Via de placenta én via de melk", "Alleen via de omgeving", "Alleen via vlooien"], "Daarom ontwormen vanaf 2 weken.");
+M("para", "Waarom begint de ontworming bij kittens later dan bij pups?", ["Kittens raken niet via de placenta besmet, alleen via de melk", "Kittens zijn minder gevoelig voor wormen", "Ontwormers zijn giftig voor jonge kittens"], "Kitten: 3, 5, 7 en 9 weken; pup: 2, 4, 6 en 8 weken.");
+M("para", "Wat is het ESCCAP-ontwormschema voor een pup?", ["2, 4, 6 en 8 weken, daarna maandelijks tot 6 maanden", "Eén keer op 8 weken", "Elke week tot 1 jaar"], "De teef wordt tegelijk ontwormd.");
+M("para", "Hoe vaak ontworm je een gemiddelde volwassen hond volgens ESCCAP?", ["Gemiddeld 4 keer per jaar (of mestonderzoek)", "1 keer per 2 jaar", "Elke week"], "Vaker bij jagen, rauw vlees of kinderen in huis; minder bij een binnenkat zonder contact.");
+M("para", "Wat is de tussengastheer van de hondenlintworm Dipylidium caninum?", ["De vlo", "De slak", "De mug"], "Daarom altijd ook ontvlooien. Je ziet 'rijstkorrels' bij de anus.");
+M("para", "Welk middel werkt tegen de vossenlintworm?", ["Praziquantel", "Fenbendazol", "Fipronil"], "In een risicogebied met knaagdiercontact elke 4 weken.");
+M("para", "Hoe raakt een hond besmet met de Franse hartworm (Angiostrongylus vasorum)?", ["Via slakken, kikkers of padden", "Via muggen", "Via de moedermelk"], "Klachten: hoesten, benauwdheid en stollingsstoornissen.");
+M("para", "Hoe wordt de hartworm Dirofilaria immitis overgebracht?", ["Door muggen", "Door teken", "Door vlooien"], "Komt rond de Middellandse Zee voor; preventief behandelen tijdens en na de reis.");
+M("para", "Hoe stel je Giardia vast?", ["Ontlasting van 3 dagen verzamelen en onderzoeken", "Met een bloedtest", "Met een huidscraping"], "Giardia wordt wisselend uitgescheiden. Behandeling: fenbendazol, dier wassen en omgeving ontsmetten.");
+M("para", "Bij welk dier komt Tritrichomonas foetus vooral voor?", ["Kat (catterys en asiels)", "Paard", "Konijn"], "Chronische dikkedarmdiarree als een 'koeienvlaai'.");
+M("para", "Wie is de eindgastheer van Toxoplasma gondii?", ["De kat", "De mens", "Het schaap"], "Alle andere zoogdieren zijn tussengastheer.");
+M("para", "Wie zijn tussengastheer van de kleine hondenlintworm Echinococcus granulosus?", ["Schaap, rund, varken en mens", "Woelmuis en vos", "Vlo en luis"], "De hond is eindgastheer; besmetting via slachtafval of rauw vlees.");
+M("para", "Waarom geeft de paardenspoelworm Parascaris equorum vooral problemen bij veulens?", ["Ze hebben nog geen afweer opgebouwd; de worm geeft hoesten, dikke buik en kans op darmverstopping", "Omdat alleen veulens gras eten", "Omdat de worm via de melk komt"], "Er is resistentie tegen ivermectine.");
+M("para", "Wat is gevaarlijk aan de kleine strongyliden (rode bloedworm, Cyathostominae)?", ["Ingekapselde larven die massaal vrijkomen en diarree, vermageren en koliek geven", "Ze geven een trektocht door de longen", "Ze worden overgebracht door mosmijten"], "Vooral bij paarden van 1-3 jaar.");
+M("para", "Welke klacht geeft de grote strongylide Strongylus vulgaris?", ["Trombo-embolische koliek door de trektocht langs de darmslagaders", "Jeuk rond de staart", "Hoesten bij veulens"], "Tegenwoordig zeldzaam.");
+M("para", "Hoe raakt een paard besmet met de paardenlintworm Anoplocephala perfoliata?", ["Via mosmijten op de weide", "Via de moedermelk", "Via vliegen"], "Eén keer per jaar in het najaar behandelen.");
+M("para", "Hoe raakt een veulen besmet met de veulenworm Strongyloides westeri?", ["Via de moedermelk (en de huid)", "Via slakken", "Via muggen"], "Geeft diarree bij jonge veulens.");
+M("para", "Waarop baseer je de ontworming van volwassen paarden?", ["Op mestonderzoek, om resistentie te beperken", "Op een vast schema van 6 keer per jaar", "Alleen op het seizoen"], "Paarden ouder dan 3 jaar: ±3 keer per jaar mestonderzoek en 1 keer per jaar in het najaar ontwormen.");
+M("para", "Waar bevindt zich het grootste deel van een vlooienpopulatie?", ["In de omgeving (95%: eitjes, larven en poppen)", "Op het dier (95%)", "Half op het dier, half in de omgeving"], "Daarom ook de omgeving behandelen: stofzuigen, wassen, omgevingsspray.");
+M("para", "Hoe toon je vlooienpoep aan?", ["Op een natte tissue kleurt het rood", "Het licht op onder de Woodse lamp", "Het wordt blauw met fluoresceïne"], "Vlooienpoep is verteerd bloed.");
+M("para", "Welk vlooienmiddel is giftig voor konijnen?", ["Fipronil", "Imidacloprid", "Selamectine"], "Permethrin is giftig voor katten.");
+M("para", "Wanneer moet een teek verwijderd zijn om de kans op Borrelia-overdracht klein te houden?", ["Binnen 24 uur", "Binnen een week", "Het maakt niet uit"], "Overdracht gebeurt na 24-48 uur. Gebruik een tekenhaakje en ontsmet daarna.");
+M("para", "Welke ziekteverwekker wordt door teken overgebracht?", ["Babesia", "Dipylidium", "Leishmania"], "Leishmania wordt door de zandvlieg overgebracht, Dipylidium door de vlo.");
+M("para", "Wat zie je bij schurft door Sarcoptes scabiei?", ["Hevige jeuk en korsten aan oorranden, ellebogen en buik", "Kale plekken zonder jeuk", "Schilfers op de rug"], "Zoönose. Behandel alle contactdieren.");
+M("para", "Wat is juist over Demodex canis?", ["Hij leeft in haarzakjes en geeft klachten bij lage weerstand; niet besmettelijk", "Hij is zeer besmettelijk voor mensen", "Hij geeft altijd hevige jeuk"], "Diagnose: diepe huidscraping of trichogram.");
+M("para", "Welke Demodex-mijt is wél besmettelijk tussen katten?", ["Demodex gatoi", "Demodex cati", "Demodex canis"], "D. gatoi leeft oppervlakkig; behandel alle katten in huis.");
+M("para", "Welke mijt heet ook wel 'wandelende roos'?", ["Cheyletiella", "Otodectes", "Sarcoptes"], "Komt voor bij hond, langharige kat en konijn; zoönose.");
+M("para", "Hoe herken je een luizenbesmetting?", ["Neten die aan de haren vastzitten", "Gangen in de huid", "Donker kruimelig oorsmeer"], "Donker kruimelig oorsmeer past bij oormijt.");
+M("para", "Waarom moet je kennels droog houden bij zweepwormen (Trichuris vulpis)?", ["De eitjes zijn jarenlang besmettelijk maar kunnen niet tegen uitdroging", "Zweepwormen leven in water", "Droge hokken doden volwassen wormen in de darm"], "Zweepwormen leven in de blinde en dikke darm en geven diarree en anemie.");
+
+/* ---------- P5-K2 21 Gedragsadvies ---------- */
+M("gedr", "Wat adviseer je bij verlatingsangst?", ["Alleen zijn geleidelijk opbouwen en vertrek en thuiskomst rustig houden", "De hond straffen als er iets kapot is bij thuiskomst", "De hond direct een hele dag alleen laten om te wennen"], "Nooit straffen; zo nodig gedragstherapie, eventueel met medicatie.");
+M("gedr", "Hoeveel kattenbakken adviseer je in een huis met 3 katten?", ["4 (aantal katten + 1)", "1", "3"], "Ook schoon, op een rustige plek en niet bij het voer.");
+M("gedr", "Wat adviseer je bij vuurwerkangst?", ["Ruim vooraf wennen met geluidsopnames en tijdig medicatie via de dierenarts", "De hond loslaten zodat hij kan vluchten", "De hond flink straffen als hij bang is"], "Op de dag zelf: binnen, gordijnen dicht, muziek aan, eigenaar blijft rustig. Hond aangelijnd uitlaten.");
+M("gedr", "Welke signalen wijzen op stress bij een kat?", ["Oren naar achteren, staart zwiepen en grote pupillen", "Spinnen en kopjes geven", "Rustig liggen met dichte ogen"], "Chronische stress kan onzindelijkheid en idiopathische cystitis geven.");
+M("gedr", "Een pup hapt tijdens het spelen in handen. Wat adviseer je?", ["Kort gillen, hand slap houden en belonen als hij stopt", "Snel de hand terugtrekken en opnieuw aanbieden", "De pup op zijn rug drukken"], "Zo leert de pup bijtremming.");
+M("gedr", "Een hond is agressief naar bezoek. Wat adviseer je het bezoek?", ["De hond negeren en lekkers laten vallen", "De hond meteen aaien", "De hond recht in de ogen kijken"], "Zo verbindt de hond bezoek met iets positiefs.");
+M("gedr", "Een reu markeert in huis. Welk advies past?", ["Castratie overwegen en de geur verwijderen met een enzymreiniger", "Straffen als hij markeert", "De plek met bleek schoonmaken en verder niets"], "Ook positief belonen buiten en stress verminderen.");
+M("gedr", "Een kat krabt aan de bank. Wat adviseer je?", ["Een krabpaal met kattenkruid en folie op de bank", "Laten ontnagelen", "Met water spuiten"], "Ontnagelen is verboden.");
+M("gedr", "Wat adviseer je bij stress door een nieuwe kat in huis?", ["Langzaam introduceren en elke kat eigen voer, water, bak en rustplek geven", "De katten direct samen in één kamer zetten", "De nieuwe kat elke dag in een andere kamer zetten"], "Feromonen (Feliway) en verstop- en hoge plekken helpen ook.");
+
+/* ---------- P5-K2 22 Anesthesie en monitoring ---------- */
+N("anes", "Een kat van 4 kg heeft een ademfrequentie van 20 per minuut en ligt aan een non-rebreathing-systeem. Wat is de minimale flow (2 × AMV) in L/min? (teugvolume 15 ml/kg)", 2.4, 0.05, "L/min", "Teugvolume = 4 × 15 = 60 ml. AMV = 60 × 20 = 1.200 ml = 1,2 L/min. Minimale flow = 2 × 1,2 = 2,4 L/min (maximaal 3,6 L/min).");
+N("anes", "Een kat van 5 kg ademt 24 keer per minuut aan een non-rebreathing-systeem. Wat is de maximale flow (3 × AMV) in L/min? (teugvolume 15 ml/kg)", 5.4, 0.05, "L/min", "Teugvolume = 75 ml. AMV = 75 × 24 = 1.800 ml = 1,8 L/min. 3 × 1,8 = 5,4 L/min.");
+N("anes", "Een hond van 20 kg ligt aan een rebreathing-systeem. Welke flow zet je de eerste 10-15 minuten in L/min?", 2, 0.05, "L/min", "100 ml/kg/min × 20 kg = 2.000 ml = 2 L/min.");
+N("anes", "Een hond van 30 kg ligt al 20 minuten aan een rebreathing-systeem. Welke flow zet je nu in L/min?", 1, 0.05, "L/min", "10 ml/kg/min × 30 kg = 0,3 L/min, maar het minimum is 1 L/min.");
+N("anes", "Een Sint Bernard van 80 kg ligt al 15 minuten aan een rebreathing-systeem. Welke flow zet je nu in L/min?", 1, 0.05, "L/min", "10 ml/kg/min × 80 kg = 800 ml/min = 0,8 L/min. Dit is onder het minimum van 1 L/min, dus je zet 1 L/min.");
+M("anes", "Wat betekent ASA-klasse 3?", ["Een patiënt met een systemische aandoening", "Een gezonde patiënt", "Een patiënt die zonder ingreep niet overleeft"], "1 gezond, 2 lichte aandoening zonder algemene verschijnselen, 4 ernstige levensbedreigende aandoening, 5 overleeft niet zonder ingreep.");
+M("anes", "Welk dier laat je vóór de narcose niet nuchter?", ["Konijn", "Hond", "Kat"], "Konijnen en knaagdieren kunnen niet braken; vasten geeft risico op darmstilstand.");
+M("anes", "Voor welke dieren gebruik je een non-rebreathing-systeem?", ["Dieren lichter dan ±7 kg", "Dieren zwaarder dan 10 kg", "Alleen paarden"], "Weinig ademweerstand, maar een hoge verse gasflow nodig.");
+M("anes", "Wat is het nadeel van een rebreathing-systeem?", ["Meer ademweerstand", "Het verbruikt veel meer isofluraan", "Het warmt de patiënt af"], "Voordelen: zuinig en het houdt warmte en vocht vast.");
+M("anes", "Hoe zie je dat de sodalime verzadigd is?", ["Het wordt paars en hard; betrouwbaarder is een stijgende ingeademde CO2 op de capnograaf", "Het wordt wit en zacht", "De ademballon wordt groter"], "Vervang de sodalime op tijd.");
+M("anes", "Waarom vul je de ademballon niet met de zuurstof-bypass?", ["De bypass gaat langs flowmeter en verdamper, dus zonder isofluraan", "De bypass geeft te weinig zuurstof", "De bypass werkt alleen bij non-rebreathing"], "Gebruik de bypass alleen bewust, bijvoorbeeld om het systeem uit te wassen.");
+M("anes", "Wat is een nadeel van inhalatieanesthesie?", ["Geen pijnstilling en blootstelling van het personeel", "Slecht stuurbaar", "Zware belasting van lever en nieren"], "Voordelen: goed stuurbaar, snel wakker, altijd zuurstof en beademing mogelijk.");
+M("anes", "Wat is een nadeel van injectieanesthesie?", ["Minder goed stuurbaar en afbraak via lever en nieren", "Er is altijd een anesthesieapparaat nodig", "Het werkt alleen bij paarden"], "Voordeel: eenvoudig, geen apparatuur nodig.");
+M("anes", "Welk voorbeeld is geleidingsanesthesie?", ["Een epidurale anesthesie", "Lidocaïnespray op de larynx", "Lidocaïne rond een incisie spuiten"], "Spray is oppervlakteanesthesie; rond de incisie spuiten is infiltratieanesthesie.");
+M("anes", "Waarvoor gebruik je oppervlakteanesthesie?", ["Lidocaïnespray vóór het intuberen van een kat", "Een epidurale bij een koe", "Takanesthesie bij een paard"], "Ook crème vóór bloedprikken en oogdruppels.");
+M("anes", "Wat meet een pulsoxymeter?", ["Zuurstofverzadiging van het bloed (SpO2) en de pols", "CO2 in de uitademingslucht", "De elektrische activiteit van het hart"], "Normaal boven 95%. Klem op een vochtige tong.");
+M("anes", "Wat is een normale eind-uitademings-CO2 op de capnograaf?", ["35-45 mmHg", "5-10 mmHg", "90-100 mmHg"], "Dat is 4,5-6 kPa of 4,5-6%. De capnograaf zegt iets over ademhaling én circulatie.");
+M("anes", "Wat zegt een ECG niet?", ["Hoe goed het hart pompt", "Of er ritmestoornissen zijn", "Wat de elektrische activiteit van het hart is"], "Kijk daarom ook naar pols, slijmvliezen en bloeddruk.");
+M("anes", "Hoe sluit je een ECG aan?", ["Elektroden aan beide voorpoten en een achterpoot", "Een klem op de tong", "Een manchet om de staart"], "De manchet hoort bij een niet-invasieve bloeddrukmeter.");
+M("anes", "Welke combinatie wijst op een te diepe anesthesie?", ["Trage oppervlakkige ademhaling, zwakke pols en weer wijde pupillen", "Snellere hartslag en ademhaling", "Ooglidreflex en reactie op pijn"], "Verdamper dicht, zuurstof, beademen, dierenarts waarschuwen.");
+M("anes", "Wat merk je als eerste als de anesthesie te oppervlakkig wordt?", ["Snellere hartslag en ademhaling", "Wijde pupillen en trage pols", "Blauwe slijmvliezen"], "Liever extra pijnstilling dan de isofluraan omhoog.");
+M("anes", "Wat is de gevaarlijkste fase van de anesthesie?", ["De recovery: 60% van de sterfte valt in de eerste 3 uur na de anesthesie", "De premedicatie", "De inductie"], "Controleer in de recovery elke 10 minuten ademhaling, pols, temperatuur en slijmvliezen.");
+M("anes", "Wanneer haal je de tube eruit?", ["Bij terugkeer van de slikreflex, na eerst de cuff leeg te maken", "Direct als de verdamper dicht is", "Pas als het dier staat"], "Blijf bij het dier zolang de tube erin zit.");
+M("anes", "Welk middel heft het effect van (dex)medetomidine op?", ["Atipamezol", "Naloxon", "Atropine"], "Naloxon heft opiaten op.");
+M("anes", "Wat geldt voor ketamine?", ["Altijd combineren met een sedativum", "Alleen intraveneus te gebruiken", "Het geeft geen pijnstilling"], "Ketamine is wel pijnstillend en kan ook i.m.; propofol kan alleen i.v.");
+M("anes", "Welke vier kenmerken heeft algehele anesthesie?", ["Narcose, analgesie, spierverslapping en een stabiel autonoom zenuwstelsel", "Sedatie, braken, koorts en pijn", "Amnesie, hoesten, slikken en kauwen"], "Bij sedatie voelt een dier nog pijn en kan het plots bijten.");
+O("anes", "Zet de fasen van de anesthesie in de juiste volgorde.", ["Premedicatie", "Inductie", "Onderhoud", "Uitleiden / recovery"], "Bij het wakker worden doorloopt het dier de stadia in omgekeerde volgorde.");
+
+/* ---------- P5-K1 23-24 Opiumwet en röntgen ---------- */
+M("opi", "Binnen hoeveel tijd stuur je de ontvangstbon van opiaten ondertekend terug?", ["3 werkdagen", "1 maand", "24 uur"], "Afwijkingen meld je ook binnen 3 werkdagen schriftelijk.");
+M("opi", "Hoe lang bewaar je de kopie van de opiaten-ontvangstbon?", ["6 jaar, gesorteerd per product", "1 jaar", "10 jaar, op datum"], "");
+M("opi", "Hoe bewaar je opiaten?", ["In een afgesloten kast, op slot als er geen dierenarts in het pand is", "In de koelkast naast de vaccins", "Vrij in de apotheek, zichtbaar voor iedereen"], "Per product hoort er een opiatenkaart bij.");
+M("opi", "Wat staat er op een opiatenkaart?", ["De voorraad per product en bij welke patiënt hoeveel is gebruikt", "Alleen de vervaldatum", "De prijs per milliliter"], "");
+M("opi", "Welk middel valt ook onder de Opiumwet, al is het geen opiaat?", ["Pentobarbital", "Meloxicam", "Amoxicilline"], "Pentobarbital wordt gebruikt voor euthanasie.");
+M("opi", "Wat is de jaarlijkse dosislimiet voor een blootgestelde werknemer van 18 jaar of ouder?", ["20 mSv", "1 mSv", "500 mSv"], "500 mSv is de limiet voor huid en handen. 1 mSv geldt voor de bevolking.");
+M("opi", "Wat is de dosislimiet voor een leerling van 16-18 jaar?", ["6 mSv per jaar", "20 mSv per jaar", "1 mSv per jaar"], "");
+M("opi", "Wat betekent ALARA?", ["Zo laag als redelijkerwijs mogelijk", "Altijd loodschort aan, rest afwachten", "Alleen met een vergunning van de ANVS"], "Bijvoorbeeld diafragmeren, goed positioneren en geen herhaalopnames.");
+M("opi", "Waar draag je de stralingsbadge?", ["Op borsthoogte boven het loodschort", "Onder het loodschort", "Aan de pols"], "De badge wordt elke maand (4 weken) uitgelezen.");
+M("opi", "Wat is juist over loodhandschoenen van 0,5 mm Pb?", ["Ze beschermen niet tegen de primaire bundel; houd je handen buiten de bundel", "Ze beschermen volledig in de bundel", "Ze zijn niet nodig als je een loodschort draagt"], "Fixeer bij voorkeur met hulpmiddelen of sedatie.");
+M("opi", "Welke instantie houdt toezicht op het gebruik van röntgenstraling?", ["ANVS", "NVWA", "CIBG"], "Op basis van het Besluit basisveiligheidsnormen stralingsbescherming (Bbs).");
+M("opi", "Wie houdt in de praktijk dagelijks toezicht op stralingsbescherming?", ["De TMS (toezichthoudend medewerker stralingsbescherming)", "De SBD", "De NVWA"], "De stralingsbeschermingsdeskundige (SBD) maakt beleid en de risicoanalyse.");
+M("opi", "Wie mag nooit bij een röntgenopname aanwezig zijn?", ["Kinderen jonger dan 16 jaar", "De paraveterinair", "De dierenarts"], "Een eigenaar alleen als het echt nodig is en beschermd.");
+
+</script>
+<script>
+"use strict";
+const BLOCKS = [
+  { id: "anat", kt: "B1-K1", code: "B1-K1 · 1", name: "Anatomie en fysiologie", q: 6, special: ["hot"] },
+  { id: "repro", kt: "B1-K1", code: "B1-K1 · 2-6", name: "Voortplanting, bronst en geboorte", q: 6, special: [] },
+  { id: "soc", kt: "B1-K1", code: "B1-K1 · 7-10", name: "Socialisatie, gedrag en welzijn", q: 3, special: [] },
+  { id: "wet", kt: "B1-K1", code: "B1-K1 · 11-12", name: "Wetgeving, arbo en bevoegdheden", q: 4, special: ["mc4"] },
+  { id: "hyg", kt: "B1-K1", code: "B1-K1 · 13-14", name: "Hygiëne, zoönosen en quarantaine", q: 4, special: [] },
+  { id: "ehbo", kt: "B1-K1", code: "B1-K1 · 15 / P5-K2 · 18", name: "EHBO en spoedgevallen", q: 4, special: ["order"] },
+  { id: "voed", kt: "B1-K1", code: "B1-K1 · 16", name: "Voeding en dieetvoeding", q: 9, special: ["mc4"] },
+  { id: "gez", kt: "B1-K1", code: "B1-K1 · 17", name: "Diergezondheid, vaccinatie en zoönosen", q: 6, special: [] },
+  { id: "ras", kt: "P5-K2", code: "P5-K2 · 19", name: "Rasspecifieke problemen", q: 1, special: [] },
+  { id: "symp", kt: "P5-K2", code: "P5-K2 · 20", name: "Algemene ziektesymptomen", q: 2, special: [] },
+  { id: "ziek", kt: "P5-K2", code: "P5-K2 · 21", name: "Veelvoorkomende ziektes", q: 5, special: ["mc5"] },
+  { id: "para", kt: "P5-K2", code: "P5-K2 · 21", name: "Endo- en ectoparasieten, ontworming", q: 6, special: [] },
+  { id: "gedr", kt: "P5-K2", code: "P5-K2 · 21", name: "Gedragsadvies hond en kat", q: 2, special: [] },
+  { id: "anes", kt: "P5-K2", code: "P5-K2 · 22", name: "Anesthesie en monitoring", q: 5, special: ["num"] },
+  { id: "opi", kt: "P5-K1", code: "P5-K1 · 23-24", name: "Opiumwet en röntgen", q: 2, special: [] }
+];
+const KT = { "B1-K1": "B1-K1 Zorgdragen voor dieren", "P5-K2": "P5-K2 Verrichten paraveterinaire handelingen", "P5-K1": "P5-K1 Uitvoeren algemene praktijkwerkzaamheden" };
+const BY = Object.fromEntries(BLOCKS.map(b => [b.id, b]));
+const EXAM_MIN = 90, PASS = 39, GOOD = 52;
+Q.forEach((q, i) => { q.id = "q" + i; q.kind = q.t === "mc" ? "mc" + q.o.length : q.t; });
+const QI = Object.fromEntries(Q.map(q => [q.id, q]));
+const KIND_LABEL = { mc3: "Meerkeuze · 3", mc4: "Meerkeuze · 4", mc5: "Meerkeuze · 5", order: "Rangschikvraag", num: "Invulvraag", hot: "Hotspotvraag" };
+
+/* ---------- opslag (alleen in deze browser) ---------- */
+const KEY = "pvtrainer.v1";
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } }
+function saveLocal() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+let store = load() || { runs: [], best: {}, wrong: [] };
+
+/* ---------- opslag in het account (gedeelde database: scores/<persoon>) ---------- */
+const cloud = { db: null, user: null, uid: null, state: "local", people: [], names: {}, writing: false, pending: false, retried: false };
+function save() { saveLocal(); pushCloud(); }
+async function pushCloud() {
+  if (cloud.state !== "on") return;
+  if (cloud.writing) { cloud.pending = true; return; }
+  cloud.writing = true;
+  try {
+    await cloud.db.doc("scores/" + cloud.uid).set({ runs: store.runs, best: store.best, wrong: store.wrong, updated: Date.now() });
+    cloud.retried = false;
+  } catch (e) {
+    const code = e && e.code;
+    if (code === "invalid_argument" || code === "not_granted" || code === "revoked") { cloud.state = "readonly"; if (S.view === "home") render(); }
+    else if (code === "unavailable" && !cloud.retried) { cloud.retried = true; cloud.pending = true; await new Promise(r => setTimeout(r, 800 + Math.random() * 800)); }
+  } finally {
+    cloud.writing = false;
+    if (cloud.pending) { cloud.pending = false; pushCloud(); }
+  }
+}
+function mergeStores(a, b) {
+  const seen = new Set(), runs = [];
+  for (const r of [...a.runs, ...b.runs].sort((x, y) => y.date - x.date)) { const k = r.date + ":" + r.title; if (!seen.has(k)) { seen.add(k); runs.push(r); } }
+  const best = { ...a.best };
+  for (const [k, v] of Object.entries(b.best || {})) if (best[k] === undefined || v > best[k]) best[k] = v;
+  return { runs: runs.slice(0, 50), best, wrong: [...new Set([...(a.wrong || []), ...(b.wrong || [])])] };
+}
+async function initCloud() {
+  if (!window.claude || typeof window.claude.use !== "function") return;
+  const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+  if (!db || !user) return;
+  const uid = await user.id();
+  if (!uid) return;
+  Object.assign(cloud, { db, user, uid });
+  let canWrite = null;
+  try { canWrite = await user.can("data.write"); } catch (e) {}
+  cloud.state = canWrite === false ? "readonly" : "on";
+  let first = true;
+  db.doc("scores/" + uid).onSnapshot(snap => {
+    if (snap.metadata.hasPendingWrites) return;
+    if (snap.exists) {
+      const d = snap.data() || {};
+      const remote = { runs: [...(d.runs || [])], best: { ...(d.best || {}) }, wrong: [...(d.wrong || [])] };
+      if (first) {
+        const merged = mergeStores(remote, store);
+        const changed = merged.runs.length !== remote.runs.length || merged.wrong.length !== remote.wrong.length || JSON.stringify(merged.best) !== JSON.stringify(remote.best);
+        store = merged; saveLocal(); if (changed) pushCloud();
+      } else { store = remote; saveLocal(); }
+    } else if (first && (store.runs.length || store.wrong.length)) pushCloud();
+    first = false;
+    if (S.view === "home") render();
+  }, () => {});
+  db.collection("scores").onSnapshot(async snap => {
+    cloud.people = snap.docs.filter(d => d.exists).map(d => ({ id: d.id, ...(d.data() || {}) }));
+    try {
+      const ps = await user.profiles(cloud.people.map(p => p.id));
+      cloud.names = Object.fromEntries(Object.entries(ps).map(([k, v]) => [k, v.isMe ? "Jij" : (v.name || "Iemand")]));
+    } catch (e) {}
+    if (S.view === "home") render();
+  }, () => {});
+  if (S.view === "home") render();
+}
+function progressHtml() {
+  const people = cloud.people.filter(p => (p.runs || []).length);
+  if (!people.length) return "";
+  people.sort((a, b) => (a.id === cloud.uid ? -1 : b.id === cloud.uid ? 1 : (b.updated || 0) - (a.updated || 0)));
+  const rows = people.map(p => {
+    const runs = p.runs || [], exams = runs.filter(r => r.mode === "exam");
+    const last = exams[0], best = exams.reduce((m, r) => (!m || r.good > m.good ? r : m), null);
+    const pill = r => r ? `<span class="pill ${r.good >= GOOD ? "good" : r.good >= PASS ? "ok" : "bad"}">${r.good}/65</span>` : `<span class="muted">-</span>`;
+    const weak = Object.entries(p.best || {}).filter(([, v]) => v < 60).map(([k]) => BY[k] && BY[k].name).filter(Boolean);
+    return `<tr><td><strong>${esc(cloud.names[p.id] || (p.id === cloud.uid ? "Jij" : "Iemand"))}</strong></td><td>${runs.length}</td><td>${exams.length}</td><td>${pill(last)}</td><td>${pill(best)}</td>
+      <td class="muted" style="font-size:14px">${weak.length ? esc(weak.slice(0, 3).join(", ")) : "-"}</td><td class="muted" style="font-size:14px;white-space:nowrap">${p.updated ? fmtDate(p.updated) : ""}</td></tr>`;
+  }).join("");
+  return `<div class="section-head"><h2>Voortgang</h2><span class="muted" style="font-size:14px">Iedereen met toegang tot deze pagina ziet dit overzicht</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Wie</th><th>Rondes</th><th>Proeftoetsen</th><th>Laatste</th><th>Beste</th><th>Onder 60%</th><th>Laatst actief</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function storageLabel() {
+  if (cloud.state === "on") return "Opgeslagen in je account";
+  if (cloud.state === "readonly") return "Alleen in deze browser opgeslagen: je hebt geen schrijfrechten op deze pagina";
+  return "Opgeslagen in deze browser";
+}
+
+/* ---------- helpers ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const pct = (g, t) => t ? Math.round(g / t * 100) : 0;
+const fmtTime = s => { s = Math.max(0, Math.round(s)); const m = Math.floor(s / 60); return String(m).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+const fmtDate = t => new Date(t).toLocaleString("nl-NL", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
+/* ---------- vragen klaarzetten ---------- */
+function prep(q) {
+  const item = { id: q.id, answer: null, touched: false, checked: false };
+  if (q.t === "mc") item.perm = shuffle(q.o.map((_, i) => i));
+  if (q.t === "order") { let p; do { p = shuffle(q.o.map((_, i) => i)); } while (p.every((v, i) => v === i) && q.o.length > 1); item.answer = p; }
+  return item;
+}
+function buildExam() {
+  const used = new Set(), list = [];
+  for (const b of BLOCKS) {
+    const pool = Q.filter(q => q.b === b.id);
+    const pick = [];
+    for (const k of b.special) { const c = shuffle(pool.filter(q => q.kind === k && !used.has(q.id)))[0]; if (c) { pick.push(c); used.add(c.id); } }
+    const rest = shuffle(pool.filter(q => q.kind === "mc3" && !used.has(q.id)));
+    while (pick.length < b.q && rest.length) { const c = rest.shift(); pick.push(c); used.add(c.id); }
+    list.push(...pick);
+  }
+  return shuffle(list);
+}
+function buildMix(n) {
+  const slots = shuffle(BLOCKS.flatMap(b => Array(b.q).fill(b.id))).slice(0, n);
+  const used = new Set(), list = [];
+  for (const bid of slots) { const c = shuffle(Q.filter(q => q.b === bid && !used.has(q.id)))[0]; if (c) { used.add(c.id); list.push(c); } }
+  return list;
+}
+
+/* ---------- toestand ---------- */
+let S = { view: "home" };
+let tick = null;
+
+function startRun(mode, title, questions) {
+  S = { view: "quiz", mode, title, items: questions.map(prep), i: 0, flags: {}, started: Date.now(), confirm: false, deadline: mode === "exam" ? Date.now() + EXAM_MIN * 60000 : null };
+  startTimer(); render(); window.scrollTo(0, 0);
+}
+function startTimer() {
+  clearInterval(tick);
+  if (!S.deadline) return;
+  tick = setInterval(() => {
+    const el = document.getElementById("timer");
+    const left = (S.deadline - Date.now()) / 1000;
+    if (left <= 0) { clearInterval(tick); finish(true); return; }
+    if (el) { el.textContent = fmtTime(left); el.classList.toggle("low", left < 600); }
+  }, 1000);
+}
+
+/* ---------- beoordelen ---------- */
+function isCorrect(q, it) {
+  if (it.answer === null || it.answer === undefined || it.answer === "") return false;
+  if (q.t === "mc") return it.answer === 0;
+  if (q.t === "order") return it.touched && it.answer.every((v, i) => v === i);
+  if (q.t === "num") { const v = parseFloat(String(it.answer).replace(",", ".")); return !isNaN(v) && Math.abs(v - q.a) <= q.tol; }
+  if (q.t === "hot") return it.answer === q.a;
+  return false;
+}
+function answered(q, it) { return q.t === "order" ? it.touched : (it.answer !== null && it.answer !== ""); }
+function answerText(q, it) {
+  if (!answered(q, it)) return "Niet beantwoord";
+  if (q.t === "mc") return q.o[it.answer];
+  if (q.t === "order") return it.answer.map(i => q.o[i]).join(" → ");
+  if (q.t === "num") return it.answer + " " + q.unit;
+  if (q.t === "hot") return ORGANS[it.answer] || it.answer;
+}
+function rightText(q) {
+  if (q.t === "mc") return q.o[0];
+  if (q.t === "order") return q.o.join(" → ");
+  if (q.t === "num") return String(q.a).replace(".", ",") + " " + q.unit;
+  if (q.t === "hot") return ORGANS[q.a];
+}
+
+function finish(timeUp) {
+  clearInterval(tick);
+  const res = { blocks: {}, good: 0, total: S.items.length };
+  const review = [];
+  for (const it of S.items) {
+    const q = QI[it.id], ok = isCorrect(q, it);
+    res.blocks[q.b] = res.blocks[q.b] || [0, 0];
+    res.blocks[q.b][1]++;
+    if (ok) { res.good++; res.blocks[q.b][0]++; }
+    review.push({ id: it.id, ok, given: answerText(q, it) });
+    const w = store.wrong.indexOf(it.id);
+    if (ok && w >= 0) store.wrong.splice(w, 1);
+    if (!ok && w < 0) store.wrong.push(it.id);
+  }
+  for (const [b, [g, t]] of Object.entries(res.blocks)) {
+    if (S.mode === "topic" || S.mode === "exam") { const p = pct(g, t); if (t >= 3 && (store.best[b] === undefined || p > store.best[b])) store.best[b] = p; }
+  }
+  store.runs.unshift({ mode: S.mode, title: S.title, date: Date.now(), good: res.good, total: res.total, secs: Math.round((Date.now() - S.started) / 1000) });
+  store.runs = store.runs.slice(0, 50);
+  save();
+  S = { view: "result", mode: S.mode, title: S.title, res, review, timeUp, secs: Math.round((Date.now() - S.started) / 1000), filter: "all" };
+  render(); window.scrollTo(0, 0);
+}
+
+/* ---------- hotspot: schematische hond, lateraal links ---------- */
+const ORGANS = { longen: "Longen", hart: "Hart", lever: "Lever", maag: "Maag", nier: "Nier", darmen: "Darmen", blaas: "Urineblaas" };
+function dogSvg(it, q, reveal) {
+  const cls = k => {
+    if (reveal) { if (k === q.a) return "right"; if (k === it.answer) return "wrong"; return ""; }
+    return k === it.answer ? "sel" : "";
+  };
+  return `<svg viewBox="0 0 640 360" role="img" aria-label="Schematische hond, zijaanzicht van links, met organen">
+    <path class="body" d="M118 120 C98 96 92 70 72 62 C52 56 30 70 24 92 C20 108 30 120 46 124 L74 128 C86 140 104 150 128 152 L150 156 C150 200 160 240 176 252 L180 330 L204 330 L210 262 C260 270 380 270 440 262 L446 330 L470 330 L476 252 C504 236 520 200 520 168 C540 150 572 120 600 96 L596 88 C566 108 536 128 514 140 C500 118 470 104 430 100 C340 92 230 94 178 104 C156 108 136 114 118 120 Z"/>
+    <path d="M150 156 C152 200 162 236 176 252" fill="none" stroke="var(--organ-line)" stroke-width="1" stroke-dasharray="4 4"/>
+    <path d="M292 108 C280 160 284 220 300 262" fill="none" stroke="var(--organ-line)" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <text class="lbl" x="296" y="96" text-anchor="middle">middenrif</text>
+    <text class="lbl" x="40" y="54">kop</text>
+    <text class="lbl" x="560" y="80">staart</text>
+    ${`<path data-hot d="M180 118 C210 106 262 106 284 116 C290 140 288 168 280 182 C256 176 224 178 204 186 C186 174 176 146 180 118 Z"/>`.replace("data-hot", attrs("longen"))}
+    ${`<path data-hot d="M206 194 C222 182 250 184 262 200 C270 222 256 248 236 252 C214 246 202 222 206 194 Z"/>`.replace("data-hot", attrs("hart"))}
+    ${`<path data-hot d="M296 116 C318 126 326 170 322 214 C318 240 308 256 300 262 C290 240 286 160 296 116 Z"/>`.replace("data-hot", attrs("lever"))}
+    ${`<ellipse data-hot cx="350" cy="190" rx="22" ry="30"/>`.replace("data-hot", attrs("maag"))}
+    ${`<path data-hot d="M376 122 C392 112 414 116 418 130 C420 142 410 150 398 146 C390 144 384 150 378 146 C368 140 368 128 376 122 Z"/>`.replace("data-hot", attrs("nier"))}
+    ${`<path data-hot d="M384 176 C410 166 446 172 456 192 C462 214 444 238 414 242 C390 244 376 228 378 208 C376 196 378 184 384 176 Z"/>`.replace("data-hot", attrs("darmen"))}
+    ${`<ellipse data-hot cx="486" cy="226" rx="17" ry="15"/>`.replace("data-hot", attrs("blaas"))}
+  </svg>`;
+  function attrs(k) { return `data-hot="${k}" class="${cls(k)}" tabindex="0" role="button" aria-label="Orgaan ${k === it.answer && !reveal ? "(gekozen)" : ""}"`; }
+}
+
+/* ---------- weergave ---------- */
+function render() {
+  const app = document.getElementById("app");
+  if (S.view === "home") app.innerHTML = homeHtml();
+  else if (S.view === "quiz") app.innerHTML = quizHtml();
+  else if (S.view === "result") app.innerHTML = resultHtml();
+  if (S.view === "quiz" && S.deadline) { const el = document.getElementById("timer"); if (el) el.textContent = fmtTime((S.deadline - Date.now()) / 1000); }
+}
+
+function homeHtml() {
+  const count = id => Q.filter(q => q.b === id).length;
+  const groups = Object.keys(KT).map(kt => {
+    const rows = BLOCKS.filter(b => b.kt === kt).map(b => {
+      const best = store.best[b.id];
+      const bestHtml = best === undefined ? `<span class="muted">Nog niet geoefend</span>` :
+        `<div class="bar ${best >= 80 ? "good" : best < 60 ? "bad" : ""}"><i style="width:${best}%"></i></div><span>${best}%</span>`;
+      const n = count(b.id);
+      return `<div class="topic">
+        <div class="code">${esc(b.code)}</div>
+        <div><div class="name">${esc(b.name)}</div><div class="meta">${b.q} ${b.q === 1 ? "vraag" : "vragen"} op het examen · ${n} in de vragenbank</div></div>
+        <div class="best">${bestHtml}</div>
+        <div class="acts">${n > 10 ? `<button class="btn small" data-act="topic" data-b="${b.id}" data-n="10">10 vragen</button>` : ""}<button class="btn small ${n > 10 ? "ghost" : ""}" data-act="topic" data-b="${b.id}" data-n="all">Alle ${n}</button></div>
+      </div>`;
+    }).join("");
+    return `<div class="kt"><div class="kt-label">${esc(KT[kt])}</div>${rows}</div>`;
+  }).join("");
+  const hist = store.runs.length ? `<div class="section-head"><h2>Jouw laatste resultaten</h2><span class="muted" style="font-size:14px">${esc(storageLabel())}</span></div>
+    <div class="history">${store.runs.slice(0, 8).map(r => {
+      const p = pct(r.good, r.total);
+      const cls = r.mode === "exam" ? (r.good >= GOOD ? "good" : r.good >= PASS ? "ok" : "bad") : (p >= 80 ? "good" : p >= 60 ? "ok" : "bad");
+      return `<div class="h"><div><strong>${esc(r.title)}</strong> <span class="muted">· ${fmtDate(r.date)}</span></div><span class="muted">${fmtTime(r.secs)}</span><span class="pill ${cls}">${r.good}/${r.total} · ${p}%</span></div>`;
+    }).join("")}</div>` : "";
+  const wrongN = store.wrong.filter(id => QI[id]).length;
+  return `
+  <header class="top">
+    <span class="mono">Examentrainer Alien · DA Paraveterinair · toetsmatrijs 25731.22</span>
+    <h1>Hoi Alien, klaar voor je kennisexamen?</h1>
+    <p>Dit is jouw eigen examentraining. Oefen per onderwerp uit de toetsmatrijs of doe een volledige proeftoets met dezelfde verdeling en vraagvormen als het echte examen. Alle vragen komen uit je lesstof van Aeres Training Centre, en je scores worden bijgehouden zodat je ziet waar je sterker wordt.</p>
+  </header>
+  <section class="modes">
+    <div class="card exam">
+      <span class="mono" style="opacity:.8;text-transform:uppercase;letter-spacing:.08em">Proeftoets</span>
+      <h2>Volledig kennisexamen</h2>
+      <p>Alle onderwerpen door elkaar, verdeeld volgens de matrijs. Je ziet de uitslag pas na het inleveren.</p>
+      <dl class="facts">
+        <div><dt>Vragen</dt><dd>65</dd></div>
+        <div><dt>Tijd</dt><dd>90 min</dd></div>
+        <div><dt>Voldoende</dt><dd>39</dd></div>
+        <div><dt>Goed</dt><dd>52</dd></div>
+      </dl>
+      <div class="row"><button class="btn" data-act="exam">Start proeftoets</button></div>
+    </div>
+    <div class="side-modes">
+      <div class="card">
+        <h3>Snelle mix</h3>
+        <p class="muted">20 vragen uit alle onderwerpen, met direct de uitleg na elke vraag.</p>
+        <div class="row"><button class="btn primary" data-act="mix">Start snelle mix</button></div>
+      </div>
+      <div class="card">
+        <h3>Foutenlijst</h3>
+        <p class="muted">${wrongN ? `${wrongN} vragen die je eerder fout had. Goed beantwoord? Dan verdwijnen ze van de lijst.` : "Vragen die je fout beantwoordt, komen hier te staan."}</p>
+        <div class="row"><button class="btn" data-act="wrong" ${wrongN ? "" : "disabled"}>Oefen foute vragen</button></div>
+      </div>
+    </div>
+  </section>
+  <div class="section-head"><h2>Oefenen per onderwerp</h2><span class="muted" style="font-size:14px">${Q.length} vragen · met uitleg na elke vraag</span></div>
+  ${groups}
+  ${progressHtml()}
+  ${hist}
+  <div class="note">
+    <p>De proeftoets bevat net als het examen 59 meerkeuzevragen met 3 alternatieven, 2 met 4, 1 met 5, een rangschikvraag, een invulvraag en een hotspotvraag.</p>
+    <p>EHBO staat in de matrijs twee keer (B1-K1 15 en P5-K2 18) met dezelfde inhoud. Opgeteld komt de matrijs op 69 punten; de proeftoets telt EHBO één keer, zodat hij uitkomt op de 65 vragen van het examen.</p>
+    <p>Vragen met [aanvulling] gaan over stof die de matrijs vraagt maar die niet in de lesstof staat.</p>
+    <p>${cloud.state === "on" ? "Je scores worden in je Claude-account bewaard, zodat je op elk apparaat verder kunt. Iedereen met toegang tot deze pagina ziet het voortgangsoverzicht." : cloud.state === "readonly" ? "Je kunt oefenen, maar je scores worden alleen in deze browser bewaard. Vraag de eigenaar om je toegang als bijdrager (Contributor) te geven." : "Je scores worden in deze browser bewaard. Oefen daarom steeds op hetzelfde apparaat en in dezelfde browser, dan zie je je voortgang terug."}</p>
+    ${store.runs.length || store.wrong.length ? `<p><button class="btn small ghost" data-act="reset">Mijn resultaten wissen</button></p>` : ""}
+  </div>`;
+}
+
+function quizHtml() {
+  const it = S.items[S.i], q = QI[it.id], b = BY[q.b];
+  const exam = S.mode === "exam";
+  const reveal = !exam && it.checked;
+  const doneN = S.items.filter(x => answered(QI[x.id], x)).length;
+  const progress = exam ? doneN / S.items.length : (S.i + (it.checked ? 1 : 0)) / S.items.length;
+  let body = "";
+  if (q.t === "mc") {
+    body = `<div class="opts">${it.perm.map((oi, k) => {
+      let c = "";
+      if (reveal) { if (oi === 0) c = "right"; else if (oi === it.answer) c = "wrong"; }
+      else if (it.answer === oi) c = "sel";
+      return `<button class="opt ${c}" data-act="pick" data-v="${oi}" ${reveal ? "disabled" : ""}><span class="key">${"ABCDE"[k]}</span><span>${esc(q.o[oi])}</span></button>`;
+    }).join("")}</div>`;
+  } else if (q.t === "order") {
+    const okAt = i => it.answer[i] === i;
+    body = `<p class="muted" style="font-size:14px">Zet de onderdelen met de pijltjes in de juiste volgorde${exam ? " en klik op ‘Volgorde vastleggen’." : "."}</p>
+    <div class="order">${it.answer.map((oi, k) => `<div class="oitem ${reveal ? (okAt(k) ? "right" : "wrong") : ""}"><span class="n">${k + 1}</span><span>${esc(q.o[oi])}</span>
+      <span class="mv">${reveal ? "" : `<button data-act="up" data-k="${k}" aria-label="Omhoog" ${k === 0 ? "disabled" : ""}>↑</button><button data-act="down" data-k="${k}" aria-label="Omlaag" ${k === it.answer.length - 1 ? "disabled" : ""}>↓</button>`}</span></div>`).join("")}</div>
+    ${exam ? `<div class="row"><button class="btn small" data-act="lock">${it.touched ? "Volgorde vastgelegd ✓" : "Volgorde vastleggen"}</button></div>` : ""}`;
+  } else if (q.t === "num") {
+    body = `<div class="numin"><input id="num-${it.id}" inputmode="decimal" autocomplete="off" value="${it.answer === null ? "" : esc(it.answer)}" ${reveal ? "disabled" : ""} aria-label="Antwoord in ${esc(q.unit)}"><span class="muted">${esc(q.unit)}</span></div>
+    <p class="muted" style="font-size:14px">Gebruik een komma of punt voor decimalen.</p>`;
+  } else if (q.t === "hot") {
+    body = `<div class="hotwrap">${dogSvg(it, q, reveal)}</div><p class="muted" style="font-size:14px">${it.answer && !reveal ? "Gekozen: " + esc(ORGANS[it.answer]) : "Klik op een orgaan in de tekening."}</p>`;
+  }
+  let fb = "";
+  if (reveal) {
+    const ok = isCorrect(q, it);
+    fb = `<div class="feedback ${ok ? "good" : "bad"}"><strong>${ok ? "Goed" : "Niet goed"}</strong>${ok ? "" : `<span>Juist antwoord: <b>${esc(rightText(q))}</b></span>`}${q.e ? `<span>${esc(q.e)}</span>` : ""}</div>`;
+  }
+  const last = S.i === S.items.length - 1;
+  let nav;
+  if (exam) {
+    nav = `<div class="qnav"><div class="row"><button class="btn" data-act="prev" ${S.i === 0 ? "disabled" : ""}>Vorige</button><button class="btn ghost" data-act="flag">${S.flags[S.i] ? "Markering weg" : "Markeer"}</button></div>
+      <div class="row">${last ? "" : `<button class="btn primary" data-act="next">Volgende</button>`}<button class="btn ${last ? "primary" : ""}" data-act="submit">Inleveren</button></div></div>
+      ${S.confirm ? `<div class="confirm"><strong>Toets inleveren?</strong><span>Je hebt ${doneN} van de ${S.items.length} vragen beantwoord${Object.values(S.flags).filter(Boolean).length ? ` en ${Object.values(S.flags).filter(Boolean).length} gemarkeerd` : ""}. Na het inleveren kun je niets meer veranderen.</span><div class="row"><button class="btn primary" data-act="really">Ja, inleveren</button><button class="btn" data-act="nosubmit">Terug naar de toets</button></div></div>` : ""}
+      <div class="grid">${S.items.map((x, k) => `<button data-act="go" data-k="${k}" class="${answered(QI[x.id], x) ? "done" : ""} ${S.flags[k] ? "flag" : ""} ${k === S.i ? "cur" : ""}" aria-label="Vraag ${k + 1}">${k + 1}</button>`).join("")}</div>
+      <div class="legend"><span class="l-done">Beantwoord</span><span class="l-flag">Gemarkeerd</span></div>`;
+  } else {
+    const needCheck = q.t === "order" || q.t === "num";
+    nav = `<div class="qnav"><div class="row"><button class="btn ghost" data-act="stop">Stoppen</button></div><div class="row">
+      ${!it.checked && needCheck ? `<button class="btn primary" data-act="check">Controleer</button>` : ""}
+      ${it.checked ? `<button class="btn primary" data-act="nextp">${last ? "Bekijk resultaat" : "Volgende vraag"}</button>` : ""}</div></div>`;
+  }
+  return `
+  <div class="qbar">
+    <div class="row"><div><strong>${esc(S.title)}</strong> <span class="muted">· vraag ${S.i + 1} van ${S.items.length}</span></div>
+      <div class="row">${exam ? `<span class="timer" id="timer" aria-label="Resterende tijd">--:--</span><button class="btn small ghost" data-act="stop">Stoppen</button>` : ""}</div></div>
+    <div class="progress"><i style="width:${Math.round(progress * 100)}%"></i></div>
+  </div>
+  <article class="qcard">
+    <div class="qmeta"><span class="tag">${esc(b.code)}</span><span class="tag type">${KIND_LABEL[q.kind]}</span></div>
+    <p class="qtext">${esc(q.q)}</p>
+    ${body}
+    ${fb}
+  </article>
+  ${nav}
+  ${S.stopAsk ? `<div class="confirm"><strong>Stoppen zonder resultaat?</strong><span>Je antwoorden worden niet bewaard.</span><div class="row"><button class="btn primary" data-act="reallystop">Stoppen</button><button class="btn" data-act="nostop">Verder oefenen</button></div></div>` : ""}`;
+}
+
+function resultHtml() {
+  const R = S.res, p = pct(R.good, R.total), exam = S.mode === "exam";
+  let verdict, vcls;
+  if (exam) { if (R.good >= GOOD) { verdict = "Goed"; vcls = "good"; } else if (R.good >= PASS) { verdict = "Voldoende"; vcls = "ok"; } else { verdict = "Onvoldoende"; vcls = "bad"; } }
+  else { verdict = p >= 80 ? "Goed bezig" : p >= 60 ? "Voldoende" : "Nog oefenen"; vcls = p >= 80 ? "good" : p >= 60 ? "ok" : "bad"; }
+  const passPos = pct(PASS, 65), goodPos = pct(GOOD, 65);
+  const rows = BLOCKS.filter(b => R.blocks[b.id]).map(b => {
+    const [g, t] = R.blocks[b.id], bp = pct(g, t);
+    return `<tr><td class="code">${esc(b.code)}</td><td>${esc(b.name)}</td><td>${g}/${t}</td><td class="barcell"><div class="best"><div class="bar ${bp >= 80 ? "good" : bp < 60 ? "bad" : ""}"><i style="width:${bp}%"></i></div><span>${bp}%</span></div></td>
+      <td><button class="btn small ghost" data-act="topic" data-b="${b.id}" data-n="10">Oefen</button></td></tr>`;
+  }).join("");
+  const wrongs = S.review.filter(r => !r.ok);
+  const list = (S.filter === "wrong" ? wrongs : S.review).map(r => {
+    const q = QI[r.id];
+    return `<div class="ritem ${r.ok ? "" : "bad"}"><span class="tag" style="align-self:flex-start">${esc(BY[q.b].code)}</span><span class="q">${esc(q.q)}</span>
+      <span class="a">Jouw antwoord: ${esc(r.given)}${r.ok ? " ✓" : ""}</span>${r.ok ? "" : `<span class="a">Juist: <b>${esc(rightText(q))}</b></span>`}${q.e ? `<span class="e">${esc(q.e)}</span>` : ""}</div>`;
+  }).join("");
+  return `
+  <header class="top"><span class="mono">${exam ? "Uitslag proeftoets" : "Resultaat"}</span><h1>${esc(S.title)}</h1>${S.timeUp ? `<p>De tijd van 90 minuten was om; de toets is automatisch ingeleverd.</p>` : ""}</header>
+  <section class="score">
+    <div class="big">${R.good}<small>/${R.total}</small></div>
+    <div class="stack" style="gap:8px">
+      <div class="row"><span class="pill ${vcls}">${verdict}</span><span class="muted">${p}% goed · tijd ${fmtTime(S.secs)}</span></div>
+      ${exam ? `<div class="cesuur" aria-label="Score ten opzichte van de cesuur"><i style="width:${p}%"></i><span class="mark" style="left:${passPos}%">39 voldoende</span><span class="mark" style="left:${goodPos}%">52 goed</span></div>` : `<p class="muted">Op het examen heb je 60% nodig voor een voldoende en 80% voor goed.</p>`}
+    </div>
+  </section>
+  <div class="section-head"><h2>Per onderdeel</h2></div>
+  <div class="tablewrap"><table><thead><tr><th>Code</th><th>Onderwerp</th><th>Goed</th><th>Score</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="row" style="margin-top:20px">
+    ${wrongs.length ? `<button class="btn primary" data-act="redo">Oefen de ${wrongs.length} foute vragen</button>` : ""}
+    <button class="btn" data-act="home">Naar het overzicht</button>
+  </div>
+  <div class="section-head"><h2>Nakijken</h2><div class="toggle"><button class="${S.filter === "all" ? "on" : ""}" data-act="filter" data-f="all">Alle vragen</button><button class="${S.filter === "wrong" ? "on" : ""}" data-act="filter" data-f="wrong">Alleen fout (${wrongs.length})</button></div></div>
+  <div class="review">${list || `<p class="muted">Geen foute vragen. Mooi!</p>`}</div>`;
+}
+
+/* ---------- interactie ---------- */
+document.addEventListener("click", e => {
+  const hot = e.target.closest("[data-hot]");
+  if (hot && S.view === "quiz") { pickHot(hot.getAttribute("data-hot")); return; }
+  const el = e.target.closest("[data-act]");
+  if (!el || el.disabled) return;
+  const a = el.dataset.act;
+  if (a === "exam") startRun("exam", "Proeftoets kennisexamen", buildExam());
+  else if (a === "mix") startRun("mix", "Snelle mix", buildMix(20));
+  else if (a === "wrong") startRun("wrong", "Foutenlijst", shuffle(store.wrong.map(id => QI[id]).filter(Boolean)));
+  else if (a === "topic") {
+    const b = BY[el.dataset.b]; let pool = shuffle(Q.filter(q => q.b === b.id));
+    if (el.dataset.n !== "all") pool = pool.slice(0, 10);
+    startRun("topic", b.name, pool);
+  }
+  else if (a === "reset") { store = { runs: [], best: {}, wrong: [] }; save(); render(); }
+  else if (a === "home") { S = { view: "home" }; render(); window.scrollTo(0, 0); }
+  else if (a === "filter") { S.filter = el.dataset.f; render(); }
+  else if (a === "redo") { const ids = S.review.filter(r => !r.ok).map(r => QI[r.id]); startRun("wrong", "Foute vragen", shuffle(ids)); }
+  else if (S.view === "quiz") quizAct(a, el);
+});
+document.addEventListener("keydown", e => {
+  const hot = e.target.closest && e.target.closest("[data-hot]");
+  if (hot && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pickHot(hot.getAttribute("data-hot")); }
+});
+document.addEventListener("input", e => {
+  if (S.view !== "quiz" || !e.target.id || !e.target.id.startsWith("num-")) return;
+  const it = S.items[S.i]; it.answer = e.target.value.trim();
+  if (S.mode === "exam") { const g = document.querySelector(".grid button.cur"); if (g) g.classList.toggle("done", it.answer !== ""); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id && e.target.id.startsWith("num-") && S.mode !== "exam") quizAct("check");
+});
+
+function pickHot(k) {
+  const it = S.items[S.i], q = QI[it.id];
+  if (q.t !== "hot" || (S.mode !== "exam" && it.checked)) return;
+  it.answer = k;
+  if (S.mode !== "exam") it.checked = true;
+  render();
+}
+function quizAct(a, el) {
+  const it = S.items[S.i], q = QI[it.id], exam = S.mode === "exam";
+  if (a === "pick") { if (!exam && it.checked) return; it.answer = +el.dataset.v; if (!exam) it.checked = true; render(); return; }
+  if (a === "up" || a === "down") {
+    const k = +el.dataset.k, j = a === "up" ? k - 1 : k + 1;
+    [it.answer[k], it.answer[j]] = [it.answer[j], it.answer[k]]; it.touched = true; render(); return;
+  }
+  if (a === "lock") { it.touched = true; render(); return; }
+  if (a === "check") {
+    if (q.t === "num" && (it.answer === null || it.answer === "")) { const i = document.getElementById("num-" + it.id); if (i) i.focus(); return; }
+    if (q.t === "order") it.touched = true;
+    it.checked = true; render(); return;
+  }
+  if (a === "nextp") { if (S.i < S.items.length - 1) { S.i++; render(); window.scrollTo(0, 0); } else finish(false); return; }
+  if (a === "next") { if (S.i < S.items.length - 1) { S.i++; S.confirm = false; render(); window.scrollTo(0, 0); } return; }
+  if (a === "prev") { if (S.i > 0) { S.i--; S.confirm = false; render(); window.scrollTo(0, 0); } return; }
+  if (a === "go") { S.i = +el.dataset.k; S.confirm = false; render(); return; }
+  if (a === "flag") { S.flags[S.i] = !S.flags[S.i]; render(); return; }
+  if (a === "submit") { S.confirm = true; render(); return; }
+  if (a === "nosubmit") { S.confirm = false; render(); return; }
+  if (a === "really") { finish(false); return; }
+  if (a === "stop") { S.stopAsk = true; render(); return; }
+  if (a === "nostop") { S.stopAsk = false; render(); return; }
+  if (a === "reallystop") { clearInterval(tick); S = { view: "home" }; render(); window.scrollTo(0, 0); return; }
+}
+
+/* ---------- start (bewaart een lopende toets bij een update van de pagina) ---------- */
+function boot(data) {
+  if (data && data.S) { S = data.S; if (S.view === "quiz") startTimer(); }
+  render();
+  initCloud();
+}
+window.claude?.hot?.snapshot?.(() => ({ S }));
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
+
+</body></html>
