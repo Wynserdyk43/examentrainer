@@ -621,7 +621,9 @@ const BLOCKS = [
 const KT = { "B1-K1": "B1-K1 Zorgdragen voor dieren", "P5-K2": "P5-K2 Verrichten paraveterinaire handelingen", "P5-K1": "P5-K1 Uitvoeren algemene praktijkwerkzaamheden" };
 const BY = Object.fromEntries(BLOCKS.map(b => [b.id, b]));
 const EXAM_MIN = 90, PASS = 39, GOOD = 52;
-Q.forEach((q, i) => { q.id = "q" + i; q.kind = q.t === "mc" ? "mc" + q.o.length : q.t; });
+// Vaste id per vraag (uit onderwerp + vraagtekst), zodat de foutenlijst klopt als er vragen bijkomen.
+const hashId = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return "h" + (h >>> 0).toString(36); };
+Q.forEach(q => { q.id = hashId(q.b + "|" + q.q); q.kind = q.t === "mc" ? "mc" + q.o.length : q.t; });
 const QI = Object.fromEntries(Q.map(q => [q.id, q]));
 const KIND_LABEL = { mc3: "Meerkeuze · 3", mc4: "Meerkeuze · 4", mc5: "Meerkeuze · 5", order: "Rangschikvraag", num: "Invulvraag", hot: "Hotspotvraag" };
 
@@ -630,6 +632,7 @@ const KEY = "pvtrainer.v1";
 function load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } }
 function saveLocal() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 let store = load() || { runs: [], best: {}, wrong: [] };
+store.wrong = (store.wrong || []).filter(id => QI[id]);
 
 /* ---------- opslag in het account (gedeelde database: scores/<persoon>) ---------- */
 const cloud = { db: null, user: null, uid: null, state: "local", people: [], names: {}, writing: false, pending: false, retried: false };
